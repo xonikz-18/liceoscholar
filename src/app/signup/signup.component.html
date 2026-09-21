@@ -1,0 +1,34 @@
+<div class="auth-page">
+  <section class="brand-panel"></section>
+
+  <section class="form-panel">
+    <div class="form-box">
+      <div class="tabs">
+        <span class="slider" [class.slide-left]="switching"></span>
+        <button type="button" (click)="goToLogin()">Log In</button>
+        <button type="button" class="active">Sign Up</button>
+      </div>
+
+      <form (ngSubmit)="signup()">
+        <label for="fullName">Full Name</label>
+        <input id="fullName" type="text" name="fullName" [(ngModel)]="fullName" required>
+
+        <label for="signupEmail">School E-mail</label>
+        <input id="signupEmail" type="email" name="signupEmail" [(ngModel)]="signupEmail" required>
+
+        <label for="signupPassword">Password</label>
+        <input id="signupPassword" type="password" name="signupPassword" [(ngModel)]="signupPassword" required>
+
+        <label for="confirmPassword">Confirm Password</label>
+        <input id="confirmPassword" type="password" name="confirmPassword" [(ngModel)]="confirmPassword" required>
+
+        <button type="submit" class="submit">Sign Up</button>
+      </form>
+
+      <div class="bottom-message">
+        Already have an Account?
+        <button type="button" (click)="goToLogin()">Log In</button>
+      </div>
+    </div>
+  </section>
+</div>

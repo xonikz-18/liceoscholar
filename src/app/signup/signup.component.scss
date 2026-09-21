@@ -1,0 +1,232 @@
+$maroon: #850d16;
+$gray: #d9d9d9;
+
+:host {
+  position: fixed;
+  inset: 0;
+  display: block;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.auth-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  background: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.brand-panel {
+  position: relative;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  background: $maroon;
+}
+
+.brand-panel::before {
+  content: "";
+  position: absolute;
+  left: 10%;
+  bottom: 0;
+  width: 100%;
+  height: 82%;
+  background-image: url("../assets/images/rodelsa.png");
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 100% 100%;
+  filter: sepia(1) saturate(4) hue-rotate(315deg) brightness(0.34) contrast(0.9);
+}
+
+.brand-panel::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 250px;
+  height: 250px;
+  transform: translate(-50%, -50%);
+  background: url("../assets/images/liceologo.png") center / contain no-repeat;
+}
+
+.form-panel {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  background: #fff;
+}
+
+.form-box {
+  position: relative;
+  width: 350px;
+  height: 100%;
+}
+
+.tabs {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  width: 260px;
+  height: 38px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  overflow: hidden;
+  border: 1px solid #d7d7d7;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.tabs button {
+  position: relative;
+  z-index: 2;
+  width: 50%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: $maroon;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tabs button.active {
+  color: #fff;
+}
+
+.tabs .slider {
+  position: absolute;
+  z-index: 1;
+  top: 2px;
+  left: calc(50% + 1px);
+  width: calc(50% - 3px);
+  height: calc(100% - 4px);
+  border-radius: 11px;
+  background: $maroon;
+  transform: translateX(0);
+  transition: transform 0.22s cubic-bezier(.4, 0, .2, 1);
+}
+
+.tabs .slider.slide-left {
+  transform: translateX(-100%);
+}
+
+form {
+  position: absolute;
+  top: 31%;
+  left: 50%;
+  width: 350px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin: 0 0 6px 3px;
+  color: #aaa;
+  font-size: 9px;
+}
+
+input {
+  width: 100%;
+  height: 34px;
+  margin-bottom: 15px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  outline: 0;
+  background: $gray;
+  font-size: 12px;
+}
+
+input:focus {
+  box-shadow: 0 0 0 2px rgba(133, 13, 22, 0.15);
+}
+
+.submit {
+  width: 100%;
+  height: 34px;
+  border: 0;
+  border-radius: 6px;
+  background: $maroon;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.submit:hover {
+  background: #720a12;
+}
+
+.bottom-message {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  width: 350px;
+  transform: translateX(-50%);
+  text-align: center;
+  color: #999;
+  font-size: 8px;
+}
+
+.bottom-message button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: $maroon;
+  font-size: 8px;
+  cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .auth-page {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .brand-panel,
+  .form-panel {
+    width: 100%;
+  }
+
+  .brand-panel {
+    height: 35vh;
+    min-height: 220px;
+  }
+
+  .brand-panel::before {
+    width: 100%;
+    height: 90%;
+  }
+
+  .brand-panel::after {
+    width: 160px;
+    height: 160px;
+  }
+
+  .form-panel {
+    height: 65vh;
+    min-height: 500px;
+  }
+
+  .tabs {
+    top: 9%;
+    width: 240px;
+  }
+
+  form {
+    top: 24%;
+  }
+
+  .bottom-message {
+    bottom: 6%;
+  }
+}
