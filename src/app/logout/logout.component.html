@@ -1,5 +1,8 @@
 <div class="logout-screen">
-  <app-studentview></app-studentview>
+  <app-adminprofile *ngIf="isAdminProfile"></app-adminprofile>
+  <app-adminstudentview *ngIf="isAdminStudentDetail" [studentId]="studentId"></app-adminstudentview>
+  <app-adminstudentlist *ngIf="isAdminStudentList"></app-adminstudentlist>
+  <app-studentview *ngIf="isStudentView"></app-studentview>
 
   <div class="overlay"></div>
 

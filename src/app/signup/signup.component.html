@@ -9,25 +9,97 @@
         <button type="button" class="active">Sign Up</button>
       </div>
 
-      <form (ngSubmit)="signup()">
+      <form [class.fade-in]="animateForm" (ngSubmit)="signup()">
         <label for="fullName">Full Name</label>
-        <input id="fullName" type="text" name="fullName" [(ngModel)]="fullName" required>
+        <input id="fullName" type="text" name="fullName" [(ngModel)]="fullName" [disabled]="confirmationPending" required>
 
         <label for="signupEmail">School E-mail</label>
-        <input id="signupEmail" type="email" name="signupEmail" [(ngModel)]="signupEmail" required>
+        <input id="signupEmail" type="email" name="signupEmail" [(ngModel)]="signupEmail" [disabled]="confirmationPending" required>
+
+        <div class="signup-details-row">
+          <div class="age-field">
+            <label for="signupAge">Age</label>
+            <input id="signupAge" type="number" name="age" min="1" max="120" [(ngModel)]="age" [disabled]="confirmationPending" required>
+          </div>
+          <div class="signup-select-field">
+            <label for="signupYearLevel">Year Level</label>
+            <button
+              id="signupYearLevel"
+              class="filter-button signup-dropdown-button"
+              type="button"
+              aria-label="Year Level"
+              [attr.aria-expanded]="activeSignupDropdown === 'yearLevel'"
+              [disabled]="confirmationPending"
+              (click)="toggleSignupDropdown('yearLevel')"
+            >
+              <span>{{ yearLevel }}</span>
+              <span class="chevron" aria-hidden="true"></span>
+            </button>
+            <div class="filter-menu signup-dropdown-menu" *ngIf="activeSignupDropdown === 'yearLevel'">
+              <button type="button" *ngFor="let year of yearLevelOptions" [class.selected]="yearLevel === year" (click)="chooseSignupOption('yearLevel', year)">{{ year }}</button>
+            </div>
+          </div>
+          <div class="signup-select-field">
+            <label for="signupCourse">Course</label>
+            <button
+              id="signupCourse"
+              class="filter-button signup-dropdown-button"
+              type="button"
+              aria-label="Course"
+              [attr.aria-expanded]="activeSignupDropdown === 'course'"
+              [disabled]="confirmationPending"
+              (click)="toggleSignupDropdown('course')"
+            >
+              <span>{{ course }}</span>
+              <span class="chevron" aria-hidden="true"></span>
+            </button>
+            <div class="filter-menu signup-dropdown-menu" *ngIf="activeSignupDropdown === 'course'">
+              <button type="button" *ngFor="let option of courseOptions" [class.selected]="course === option" (click)="chooseSignupOption('course', option)">{{ option }}</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="signup-select-field scholarship-field">
+          <label for="signupScholarship">Scholarship Type</label>
+          <button
+            id="signupScholarship"
+            class="filter-button signup-dropdown-button"
+            type="button"
+            aria-label="Scholarship Type"
+            [attr.aria-expanded]="activeSignupDropdown === 'scholarshipType'"
+            [disabled]="confirmationPending"
+            (click)="toggleSignupDropdown('scholarshipType')"
+          >
+            <span>{{ scholarshipType }}</span>
+            <span class="chevron" aria-hidden="true"></span>
+          </button>
+          <div class="filter-menu signup-dropdown-menu" *ngIf="activeSignupDropdown === 'scholarshipType'">
+            <button type="button" *ngFor="let option of scholarshipOptions" [class.selected]="scholarshipType === option" (click)="chooseSignupOption('scholarshipType', option)">{{ option }}</button>
+          </div>
+        </div>
 
         <label for="signupPassword">Password</label>
-        <input id="signupPassword" type="password" name="signupPassword" [(ngModel)]="signupPassword" required>
+        <input id="signupPassword" type="password" name="signupPassword" [(ngModel)]="signupPassword" [disabled]="confirmationPending" required>
+        <p class="password-hint" *ngIf="passwordRequirementsError" role="alert">
+          Password must include at least one number and one uppercase letter.
+        </p>
 
         <label for="confirmPassword">Confirm Password</label>
-        <input id="confirmPassword" type="password" name="confirmPassword" [(ngModel)]="confirmPassword" required>
+        <input id="confirmPassword" type="password" name="confirmPassword" [(ngModel)]="confirmPassword" [disabled]="confirmationPending" required>
 
-        <button type="submit" class="submit">Sign Up</button>
+        <button type="submit" class="submit" [disabled]="confirmationPending">Sign Up</button>
+        <p class="signup-error" *ngIf="signupError" role="alert">{{ signupError }}</p>
       </form>
 
-      <div class="bottom-message">
+      <div class="bottom-message" *ngIf="!confirmationPending">
         Already have an Account?
         <button type="button" (click)="goToLogin()">Log In</button>
+      </div>
+
+      <div class="confirmation-message" *ngIf="confirmationPending" role="status">
+        <p>Check your email and confirm that it is yours to finish signing up.</p>
+        <p class="demo-note">Demo mode: no email is sent. Use the button below to simulate the email confirmation.</p>
+        <button type="button" class="confirmation-action" (click)="confirmEmail()">Simulate email confirmation</button>
       </div>
     </div>
   </section>

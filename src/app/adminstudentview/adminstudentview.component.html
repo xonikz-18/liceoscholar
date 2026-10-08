@@ -1,0 +1,122 @@
+<div class="page" (keydown.escape)="openStatusIndex = null">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true"></div>
+      <div class="brand-text">
+        <strong>Liceo de Cagayan University</strong>
+        <span>Scholarship Automation</span>
+      </div>
+    </div>
+
+    <nav class="menu" aria-label="Admin navigation">
+      <button class="menu-item" type="button" (click)="backToStudentList()">Student List</button>
+      <button class="menu-item" type="button" (click)="openAdminProfile()">Admin Profile</button>
+    </nav>
+
+    <div class="logout-item">
+      <button class="logout-hover" type="button" (click)="logout()">Log Out</button>
+    </div>
+  </aside>
+
+  <main class="content" *ngIf="student; else studentNotFound">
+    <div class="workspace">
+      <section class="profile">
+        <div class="section-title">
+          <button class="back-button" type="button" aria-label="Back to student list" (click)="backToStudentList()">
+            <span aria-hidden="true"></span>
+          </button>
+          <span>Personal Information</span>
+        </div>
+
+        <div class="profile-grid">
+          <div class="student-photo" role="img" [attr.aria-label]="student.name"></div>
+
+          <div class="details">
+            <div class="row">
+              <div class="name-field">
+                <label>Last Name, First Name M.I.</label>
+                <input [value]="student.name" readonly>
+              </div>
+              <div class="suffix-field">
+                <label>Suffix</label>
+                <input [value]="student.suffix" readonly>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="course-field">
+                <label>Course</label>
+                <input [value]="student.course" readonly>
+              </div>
+              <div class="year-field">
+                <label>Year Level</label>
+                <input [value]="student.yearLevel" readonly>
+              </div>
+              <div class="age-field">
+                <label>Age</label>
+                <input [value]="student.age" readonly>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="sex-field">
+                <label>Sex</label>
+                <input [value]="student.sex" readonly>
+              </div>
+              <div class="scholar-field">
+                <label>Scholarship Type</label>
+                <input [value]="student.scholarshipType" readonly>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="requirements">
+        <div class="requirements-title">
+          <span>Submission Requirement</span>
+          <span class="info" aria-hidden="true"></span>
+        </div>
+
+        <div class="req-card">
+          <div class="req-row" *ngFor="let requirement of requirements; let i = index">
+            <span class="date">{{ requirement.date }}</span>
+            <span class="separator" aria-hidden="true">•</span>
+            <span class="file-name">{{ requirement.fileName }}</span>
+            <span class="description">{{ requirement.description }}</span>
+
+            <div class="status-control">
+              <button
+                class="status-button"
+                [ngClass]="requirement.status.toLowerCase()"
+                type="button"
+                [attr.aria-expanded]="openStatusIndex === i"
+                (click)="toggleStatus(i)"
+              >
+                <span>{{ requirement.status }}</span>
+                <span class="chevron" aria-hidden="true"></span>
+              </button>
+
+              <div class="status-menu" *ngIf="openStatusIndex === i">
+                <button
+                  type="button"
+                  *ngFor="let status of statusOptions"
+                  (click)="setStatus(i, status)"
+                >
+                  {{ status }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <ng-template #studentNotFound>
+    <main class="content not-found">
+      <p>Student details could not be found.</p>
+      <button type="button" (click)="backToStudentList()">Back to Student List</button>
+    </main>
+  </ng-template>
+</div>

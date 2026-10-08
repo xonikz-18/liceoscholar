@@ -12,6 +12,14 @@ ng serve
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
+## Demo admin login
+
+The demo admin login reads `public/admin-demo-auth.json`, which is intentionally ignored by Git. Create that local file with `username` and `password` string properties to enable the demo admin login. This is frontend-only demo authentication: the config is publicly retrievable by browser users and must not be used for real accounts or production access.
+
+## Demo student signup
+
+Student signup collects a full name, age, course, year level, scholarship type, school email, and password. Passwords require at least one number and one uppercase letter. Signup uses a simulated email confirmation: after submitting the form, use **Simulate email confirmation** to complete signup and enter the student view, where the submitted profile details are shown. No email is sent. Signup credentials and verification state are stored in the browser's local storage, so this flow is for UI demonstrations only and is not suitable for production accounts. Real email verification and secure credential storage require a backend or an authentication provider.
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:

@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+import { ProfilePhotoEditorComponent } from '../profile-photo-editor/profile-photo-editor.component';
 
 interface Requirement {
   date:string;
@@ -23,11 +24,20 @@ interface PreviewFile {
 @Component({
   selector:'app-studentview',
   standalone:true,
-  imports:[CommonModule],
+  imports:[CommonModule, ProfilePhotoEditorComponent],
   templateUrl:'./studentview.component.html',
   styleUrl:'./studentview.component.scss'
 })
 export class StudentviewComponent {
+  readonly profile = {
+    name: localStorage.getItem('registeredFullName') || 'Reyes, Christy Ann E.',
+    course: localStorage.getItem('registeredCourse') || 'BSIT - CISCO',
+    yearLevel: localStorage.getItem('registeredYearLevel') || '3rd Year',
+    age: localStorage.getItem('registeredAge') || '20',
+    scholarshipType: localStorage.getItem('registeredScholarshipType') || 'Non - Academic Scholarship',
+    sex: localStorage.getItem('registeredFullName') ? 'N/A' : 'Female'
+  };
+
   requirements:Requirement[]=[
     {date:'08/06/2026',description:'2x2 Picture',status:'Pending',fileName:'',dataUrl:'',type:''},
     {date:'08/06/2026',description:'Report Card for Semester',status:'Approved',fileName:'',dataUrl:'',type:''},
@@ -40,13 +50,14 @@ export class StudentviewComponent {
 
   constructor(
     private router:Router,
-    private sanitizer:DomSanitizer
+    private sanitizer:DomSanitizer,
+    private changeDetector:ChangeDetectorRef
   ){
     this.loadUploads();
   }
 
   logout():void{
-    this.router.navigate(['/logout']);
+    this.router.navigate(['/logout'], { state: { returnUrl: this.router.url } });
   }
 
   onFileSelected(event:Event,index:number):void{
@@ -66,10 +77,22 @@ export class StudentviewComponent {
     const reader=new FileReader();
 
     reader.onload=()=>{
+      if(typeof reader.result!=='string'){
+        alert('Unable to read the selected file. Please try again.');
+        input.value='';
+        return;
+      }
+
       this.requirements[index].fileName=file.name;
-      this.requirements[index].dataUrl=String(reader.result);
+      this.requirements[index].dataUrl=reader.result;
       this.requirements[index].type=file.type;
       this.saveUploads();
+      input.value='';
+      this.changeDetector.markForCheck();
+    };
+
+    reader.onerror=()=>{
+      alert('Unable to read the selected file. Please try again.');
       input.value='';
     };
 

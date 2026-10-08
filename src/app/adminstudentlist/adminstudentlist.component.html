@@ -1,0 +1,97 @@
+<div class="page" (keydown.escape)="activeFilter = null">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true"></div>
+      <div class="brand-text">
+        <strong>Liceo de Cagayan University</strong>
+        <span>Scholarship Automation</span>
+      </div>
+    </div>
+
+    <nav class="menu" aria-label="Admin navigation">
+      <button class="menu-item active" type="button" aria-current="page">
+        Student List
+      </button>
+      <button class="menu-item" type="button" (click)="openAdminProfile()">
+        Admin Profile
+      </button>
+    </nav>
+
+    <div class="logout-item">
+      <button class="logout-hover" type="button" (click)="logout()">Log Out</button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <section class="student-list" aria-label="Student list">
+      <label class="search-box">
+        <span class="search-icon" aria-hidden="true"></span>
+        <input
+          type="search"
+          name="studentSearch"
+          [(ngModel)]="searchTerm"
+          placeholder="Search"
+          aria-label="Search students"
+        >
+      </label>
+
+      <div class="filters">
+        <div class="filter" *ngFor="let key of filterKeys">
+          <button
+            class="filter-button"
+            type="button"
+            [attr.aria-expanded]="activeFilter === key"
+            (click)="toggleFilter(key)"
+          >
+            <span>{{ filterLabels[key] }}</span>
+            <span class="chevron" aria-hidden="true"></span>
+          </button>
+
+          <div class="filter-menu" *ngIf="activeFilter === key">
+            <button
+              type="button"
+              [class.selected]="selectedFilters[key] === 'All'"
+              [attr.aria-pressed]="selectedFilters[key] === 'All'"
+              (click)="chooseFilter(key, 'All')"
+            >
+              All
+            </button>
+            <button
+              type="button"
+              *ngFor="let option of filterOptions[key]"
+              [class.selected]="selectedFilters[key] === option"
+              [attr.aria-pressed]="selectedFilters[key] === option"
+              (click)="chooseFilter(key, option)"
+            >
+              {{ option }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header student-row">
+          <span>Status</span>
+          <span>Full Name</span>
+          <span>Course</span>
+          <span>Year Level</span>
+          <span>Scholarship Type</span>
+        </div>
+
+        <div class="student-row" *ngFor="let student of filteredStudents">
+          <span class="status-cell">
+            <span class="status-dot" [ngClass]="student.status.toLowerCase()" [attr.aria-label]="student.status"></span>
+          </span>
+          <button class="student-name" type="button" (click)="openStudent(student)">
+            {{ student.name }}
+          </button>
+          <span>{{ student.course }}</span>
+          <span>{{ student.yearLevel }}</span>
+          <span>{{ student.scholarshipType }}</span>
+        </div>
+
+        <p class="empty-state" *ngIf="filteredStudents.length === 0">No students match your search or filters.</p>
+      </div>
+    </section>
+  </main>
+</div>

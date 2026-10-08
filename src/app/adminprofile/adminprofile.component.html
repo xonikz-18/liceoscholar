@@ -1,0 +1,53 @@
+<div class="page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true"></div>
+      <div class="brand-text">
+        <strong>Liceo de Cagayan University</strong>
+        <span>Scholarship Automation</span>
+      </div>
+    </div>
+
+    <nav class="menu" aria-label="Admin navigation">
+      <button class="menu-item" type="button" (click)="openStudentList()">Student List</button>
+      <button class="menu-item active" type="button" aria-current="page">Admin Profile</button>
+    </nav>
+
+    <div class="logout-item">
+      <button class="logout-hover" type="button" (click)="logout()">Log Out</button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <section class="profile" aria-labelledby="profile-title">
+      <h1 id="profile-title">Personal Information</h1>
+      <app-profile-photo-editor
+        class="admin-photo"
+        defaultImage="admin-default"
+        storageKey="adminProfilePhoto"
+      ></app-profile-photo-editor>
+
+      <div class="details">
+        <div class="full-name-field">
+          <label for="admin-full-name">Full Name</label>
+          <input id="admin-full-name" value="Batumbakal, Ashton Tantado Jr." readonly>
+        </div>
+
+        <div class="additional-details">
+          <div>
+            <label for="admin-suffix">Suffix</label>
+            <input id="admin-suffix" value="N/A" readonly>
+          </div>
+          <div>
+            <label for="admin-age">Age</label>
+            <input id="admin-age" value="67" readonly>
+          </div>
+          <div>
+            <label for="admin-sex">Sex</label>
+            <input id="admin-sex" value="Male" readonly>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>

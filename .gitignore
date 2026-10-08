@@ -2,6 +2,7 @@
 
 # Compiled output
 /dist
+/public/admin-demo-auth.json
 /tmp
 /out-tsc
 /bazel-out

@@ -13,7 +13,9 @@
       <span>Student Profile</span>
     </button>
 
-    <button class="logout-item" type="button" (click)="logout()">Log Out</button>
+    <div class="logout-item">
+      <button class="logout-hover" type="button" (click)="logout()">Log Out</button>
+    </div>
   </aside>
 
   <main class="content">
@@ -25,13 +27,17 @@
         </div>
 
         <div class="profile-grid">
-          <div class="student-photo"></div>
+          <app-profile-photo-editor
+            class="student-photo"
+            defaultImage="student-default"
+            storageKey="studentProfilePhoto"
+          ></app-profile-photo-editor>
 
           <div class="details">
             <div class="row">
               <div class="name-field">
                 <label>Last Name, First Name M.I.</label>
-                <input value="Reyes, Christy Ann E." readonly>
+                <input [value]="profile.name" readonly>
               </div>
 
               <div class="suffix-field">
@@ -43,29 +49,29 @@
             <div class="row">
               <div class="course-field">
                 <label>Course</label>
-                <input value="BSIT - CISCO" readonly>
+                <input [value]="profile.course" readonly>
               </div>
 
               <div class="year-field">
                 <label>Year Level</label>
-                <input value="3rd Year" readonly>
+                <input [value]="profile.yearLevel" readonly>
               </div>
 
               <div class="age-field">
                 <label>Age</label>
-                <input value="20" readonly>
+                <input [value]="profile.age" readonly>
               </div>
             </div>
 
             <div class="row">
               <div class="sex-field">
                 <label>Sex</label>
-                <input value="Female" readonly>
+                <input [value]="profile.sex" readonly>
               </div>
 
               <div class="scholar-field">
                 <label>Scholarship Type</label>
-                <input value="Non - Academic Scholarship" readonly>
+                <input [value]="profile.scholarshipType" readonly>
               </div>
             </div>
           </div>
@@ -75,12 +81,13 @@
       <section class="requirements">
         <div class="section-title">
           <span>Submission Requirement</span>
-          <span class="info">ⓘ</span>
+          <span class="info" aria-label="Submission requirement help"></span>
         </div>
 
         <div class="req-card">
           <div class="req-row" *ngFor="let req of requirements; let i = index">
             <span class="date">{{ req.date }}</span>
+            <span class="separator" aria-hidden="true">•</span>
 
             <div class="file-cell">
               <ng-container *ngIf="req.fileName; else uploadTemplate">

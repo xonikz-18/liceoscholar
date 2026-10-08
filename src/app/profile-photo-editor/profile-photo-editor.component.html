@@ -1,0 +1,80 @@
+<div class="photo-control">
+  <img *ngIf="photoUrl; else defaultPhoto" class="profile-image" [src]="photoUrl" alt="Profile photo">
+  <ng-template #defaultPhoto>
+    <div class="default-photo" [ngClass]="defaultImage" role="img" aria-label="Default profile photo"></div>
+  </ng-template>
+</div>
+<button
+  type="button"
+  class="edit-photo"
+  aria-label="Choose and adjust profile photo"
+  (click)="openEditor(photoInput)"
+></button>
+<input
+  #photoInput
+  class="file-input"
+  type="file"
+  accept="image/jpeg,image/png,image/webp"
+  (change)="onImageSelected($event)"
+>
+
+<div
+  class="editor-overlay"
+  *ngIf="editorOpen"
+  (click)="closeEditor()"
+>
+  <section
+    class="editor-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="photo-editor-title"
+    (click)="$event.stopPropagation()"
+    (keydown.escape)="closeEditor()"
+  >
+    <button type="button" class="close-button" aria-label="Cancel photo editing" (click)="closeEditor()">×</button>
+    <h2 id="photo-editor-title">Adjust Profile Picture</h2>
+
+    <div
+      class="crop-stage"
+      [style.width.px]="cropSize"
+      [style.height.px]="cropSize"
+      (pointerdown)="startDrag($event)"
+      (pointermove)="drag($event)"
+    >
+      <img
+        class="crop-image"
+        [src]="cropImageUrl"
+        [style.width.px]="imageWidth"
+        [style.height.px]="imageHeight"
+        [style.left.%]="50"
+        [style.top.%]="50"
+        [style.--offset-x.px]="offsetX"
+        [style.--offset-y.px]="offsetY"
+        (load)="onCropImageLoad($event)"
+        alt="Drag to position the profile picture"
+      >
+      <div class="crop-outline" aria-hidden="true"></div>
+    </div>
+
+    <label class="zoom-control">
+      Zoom
+      <input
+        type="range"
+        min="1"
+        max="3"
+        step="0.01"
+        [value]="zoom"
+        (input)="onZoomInput($event)"
+      >
+    </label>
+
+    <p class="instructions">Drag the image to adjust its position.</p>
+    <p class="editor-error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+    <div class="editor-actions">
+      <button type="button" class="cancel-button" (click)="closeEditor()">Cancel</button>
+      <button type="button" class="save-button" (click)="saveCrop()">Save Changes</button>
+    </div>
+  </section>
+</div>
+
+<p class="photo-error" *ngIf="errorMessage && !editorOpen" role="alert">{{ errorMessage }}</p>
