@@ -1,0 +1,27 @@
+<div class="verify-page">
+  <section class="brand-panel"></section>
+
+  <section class="content-panel">
+    <div class="verify-card" role="status">
+      <div class="spinner" *ngIf="status === 'checking'" aria-hidden="true"></div>
+
+      <ng-container [ngSwitch]="status">
+        <div *ngSwitchCase="'checking'">
+          <h1>Confirming your email…</h1>
+          <p>Hang tight while we verify your link.</p>
+        </div>
+
+        <div *ngSwitchCase="'success'">
+          <h1>Email confirmed</h1>
+          <p>Your account is ready. Taking you to your scholar profile…</p>
+        </div>
+
+        <div *ngSwitchCase="'error'">
+          <h1>We couldn't confirm your email</h1>
+          <p class="verify-error">{{ errorMessage }}</p>
+          <a class="verify-link" routerLink="/login">Back to log in</a>
+        </div>
+      </ng-container>
+    </div>
+  </section>
+</div>

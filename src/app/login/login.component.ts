@@ -1,7 +1,10 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, inject } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+
+import { AuthService } from '../services/auth.service';
+import { describeHttpError, isEmailUnconfirmedError } from '../services/api.config';
 
 @Component({
   selector: 'app-login',
@@ -10,15 +13,66 @@ import { Router } from '@angular/router';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent {
+export class LoginComponent implements OnDestroy {
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly changeDetector = inject(ChangeDetectorRef);
+
   loginEmail = '';
   loginPassword = '';
   loginError = '';
+  needsConfirmation = false;
+  resendMessage = '';
   showPassword = false;
   switching = false;
   readonly animateForm = history.state?.fadeAuthForm === true;
 
-  constructor(private router: Router, private changeDetector: ChangeDetectorRef) {}
+  // --- Forgot password ------------------------------------------------
+  showResetModal = false;
+  resetStep: 'email' | 'code' = 'email';
+  resetEmail = '';
+  resetCode = '';
+  resetNewPassword = '';
+  resetConfirmPassword = '';
+  resetError = '';
+  resetSubmitting = false;
+  /** Seconds until the emailed code stops working. */
+  resetSecondsLeft = 0;
+  /** Seconds until another code may be requested. */
+  resendSecondsLeft = 0;
+
+  // --- Toast ----------------------------------------------------------
+  toastMessage = '';
+  toastVisible = false;
+
+  private countdownTimer: ReturnType<typeof setInterval> | null = null;
+  private toastTimer: ReturnType<typeof setTimeout> | null = null;
+
+  get resetPasswordValid(): boolean {
+    return (
+      this.resetNewPassword.length >= 8
+      && /[A-Z]/.test(this.resetNewPassword)
+      && /\d/.test(this.resetNewPassword)
+    );
+  }
+
+  get resetExpired(): boolean {
+    return this.resetStep === 'code' && this.resetSecondsLeft <= 0;
+  }
+
+  get resetExpiryLabel(): string {
+    const total = Math.max(this.resetSecondsLeft, 0);
+    const minutes = Math.floor(total / 60);
+    const seconds = total % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  ngOnDestroy(): void {
+    this.stopCountdown();
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
+  }
 
   goToSignup(): void {
     this.switching = true;
@@ -27,8 +81,11 @@ export class LoginComponent {
 
   clearLoginError(): void {
     this.loginError = '';
+    this.needsConfirmation = false;
+    this.resendMessage = '';
   }
 
+  /** Signs in through the API; students land on the portal, admins on the list. */
   async login(): Promise<void> {
     const attemptedEmail = this.loginEmail;
     const attemptedPassword = this.loginPassword;
@@ -40,81 +97,195 @@ export class LoginComponent {
 
     this.loginError = '';
 
-    if (attemptedEmail.trim().toLowerCase() === 'authorizedadminscholar') {
-      try {
-        const response = await fetch('/admin-demo-auth.json', { cache: 'no-store' });
-        if (!response.ok) {
-          throw new Error(`Admin demo credentials could not be loaded (${response.status}).`);
-        }
-
-        const config: unknown = await response.json();
-        if (
-          typeof config !== 'object'
-          || config === null
-          || !('username' in config)
-          || !('password' in config)
-          || typeof config.username !== 'string'
-          || typeof config.password !== 'string'
-        ) {
-          throw new Error('Admin demo credentials have an invalid format.');
-        }
-
-        if (
-          attemptedEmail.trim() !== config.username
-          || attemptedPassword !== config.password
-        ) {
-          if (this.loginEmail === attemptedEmail && this.loginPassword === attemptedPassword) {
-            this.showLoginError('Invalid username or password.');
-          }
-          return;
-        }
-
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userEmail', config.username);
-        localStorage.setItem('userRole', 'admin');
-        await this.router.navigate(['/adminstudentlist']);
-        return;
-      } catch (error) {
-        console.error('Admin demo login failed.', error);
-        if (this.loginEmail === attemptedEmail && this.loginPassword === attemptedPassword) {
-          this.showLoginError('Unable to verify the demo admin account. Check the local admin demo configuration.');
-        }
-        return;
+    try {
+      const user = await this.auth.login(attemptedEmail.trim(), attemptedPassword);
+      await this.router.navigate([user.role === 'admin' ? '/adminstudentlist' : '/studentview']);
+    } catch (error) {
+      if (this.loginEmail === attemptedEmail && this.loginPassword === attemptedPassword) {
+        this.needsConfirmation = isEmailUnconfirmedError(error);
+        this.showLoginError(describeHttpError(error));
       }
     }
+  }
 
-    const registeredEmail = localStorage.getItem('registeredEmail');
-    const registeredPassword = localStorage.getItem('registeredPassword');
-    if (
-      attemptedEmail.trim().toLowerCase() !== registeredEmail?.toLowerCase()
-      || attemptedPassword !== registeredPassword
-    ) {
-      if (this.loginEmail === attemptedEmail && this.loginPassword === attemptedPassword) {
-        this.loginError = 'Invalid username or password.';
-      }
+  /**
+   * Re-sends the verification email for an account that signed up but has not
+   * confirmed its address yet, so nobody gets stuck on the login form.
+   */
+  async resendVerification(): Promise<void> {
+    const email = this.loginEmail.trim().toLowerCase();
+    if (!email) {
       return;
     }
 
-    if (localStorage.getItem('registeredEmailVerified') !== 'true') {
-      if (this.loginEmail === attemptedEmail && this.loginPassword === attemptedPassword) {
-        this.loginError = 'Please confirm your email before logging in.';
-      }
+    this.loginError = '';
+    this.resendMessage = '';
+
+    try {
+      await this.auth.resendVerification(email);
+      this.needsConfirmation = false;
+      this.resendMessage = 'Verification email sent. Please check your inbox (and spam folder).';
+      this.changeDetector.markForCheck();
+    } catch (error) {
+      this.showLoginError(describeHttpError(error));
+    }
+  }
+
+  // --- Forgot password --------------------------------------------------
+
+  /** Opens the reset dialog, prefilling the email if it looks valid. */
+  openForgotPassword(): void {
+    const typed = this.loginEmail.trim().toLowerCase();
+    this.resetStep = 'email';
+    this.resetEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(typed) ? typed : '';
+    this.resetCode = '';
+    this.resetNewPassword = '';
+    this.resetConfirmPassword = '';
+    this.resetError = '';
+    this.resetSubmitting = false;
+    this.resetSecondsLeft = 0;
+    this.resendSecondsLeft = 0;
+    this.showResetModal = true;
+    this.changeDetector.markForCheck();
+  }
+
+  closeForgotPassword(): void {
+    this.showResetModal = false;
+    this.resetSubmitting = false;
+    this.stopCountdown();
+    this.changeDetector.markForCheck();
+  }
+
+  /** Emails the 4-digit reset code. */
+  async sendResetCode(): Promise<void> {
+    const email = this.resetEmail.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      this.resetError = 'Enter a valid school email.';
       return;
     }
 
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userEmail', attemptedEmail.trim());
-    localStorage.setItem('userRole', 'student');
+    this.resetError = '';
+    this.resetSubmitting = true;
 
-    this.router.navigate(['/studentview']);
+    try {
+      const request = await this.auth.forgotPassword(email);
+      this.resetEmail = email;
+      this.startCountdown(request.expiresInSeconds, request.resendAfterSeconds);
+      this.resetStep = 'code';
+      this.showToast(
+        `We emailed a 4-digit code to ${email}. It expires in ${Math.round(request.expiresInSeconds / 60)} minutes.`
+      );
+    } catch (error) {
+      this.resetError = describeHttpError(error);
+    } finally {
+      this.resetSubmitting = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  /** Requests a fresh code (allowed once the 1-minute cooldown has elapsed). */
+  async resendResetCode(): Promise<void> {
+    if (this.resendSecondsLeft > 0 || this.resetSubmitting) {
+      return;
+    }
+
+    this.resetError = '';
+    this.resetSubmitting = true;
+
+    try {
+      const request = await this.auth.forgotPassword(this.resetEmail.trim().toLowerCase());
+      this.startCountdown(request.expiresInSeconds, request.resendAfterSeconds);
+      this.resetCode = '';
+      this.showToast(`A new code is on its way to ${this.resetEmail}.`);
+    } catch (error) {
+      this.resetError = describeHttpError(error);
+    } finally {
+      this.resetSubmitting = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  /** Applies the new password using the emailed code. */
+  async submitResetPassword(): Promise<void> {
+    const email = this.resetEmail.trim().toLowerCase();
+    const code = this.resetCode.trim();
+
+    if (!/^\d{4}$/.test(code)) {
+      this.resetError = 'Enter the 4-digit code from your email.';
+      return;
+    }
+    if (!this.resetPasswordValid) {
+      this.resetError =
+        'Password must be at least 8 characters and include one number and one uppercase letter.';
+      return;
+    }
+    if (this.resetNewPassword !== this.resetConfirmPassword) {
+      this.resetError = 'Passwords do not match.';
+      return;
+    }
+
+    this.resetError = '';
+    this.resetSubmitting = true;
+
+    try {
+      await this.auth.resetPassword(email, code, this.resetNewPassword);
+      this.showResetModal = false;
+      this.stopCountdown();
+      this.loginEmail = email;
+      this.loginPassword = '';
+      this.clearLoginError();
+      this.showToast('Password updated. You can now log in with your new password.');
+    } catch (error) {
+      this.resetError = describeHttpError(error);
+    } finally {
+      this.resetSubmitting = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  private startCountdown(expiresInSeconds: number, resendAfterSeconds: number): void {
+    this.stopCountdown();
+    this.resetSecondsLeft = expiresInSeconds;
+    this.resendSecondsLeft = resendAfterSeconds;
+
+    this.countdownTimer = setInterval(() => {
+      if (this.resetSecondsLeft > 0) {
+        this.resetSecondsLeft -= 1;
+      }
+      if (this.resendSecondsLeft > 0) {
+        this.resendSecondsLeft -= 1;
+      }
+      if (this.resetSecondsLeft <= 0 && this.resendSecondsLeft <= 0) {
+        this.stopCountdown();
+      }
+      this.changeDetector.markForCheck();
+    }, 1000);
+  }
+
+  private stopCountdown(): void {
+    if (this.countdownTimer) {
+      clearInterval(this.countdownTimer);
+      this.countdownTimer = null;
+    }
+  }
+
+  private showToast(message: string): void {
+    this.toastMessage = message;
+    this.toastVisible = true;
+
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
+    this.toastTimer = setTimeout(() => {
+      this.toastVisible = false;
+      this.changeDetector.markForCheck();
+    }, 5000);
+
+    this.changeDetector.markForCheck();
   }
 
   private showLoginError(message: string): void {
     this.loginError = message;
     this.changeDetector.markForCheck();
-  }
-
-  forgotPassword(): void {
-    alert('Password recovery will be connected later.');
   }
 }

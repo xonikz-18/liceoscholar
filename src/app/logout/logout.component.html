@@ -1,8 +1,18 @@
 <div class="logout-screen">
-  <app-adminprofile *ngIf="isAdminProfile"></app-adminprofile>
-  <app-adminstudentview *ngIf="isAdminStudentDetail" [studentId]="studentId"></app-adminstudentview>
-  <app-adminstudentlist *ngIf="isAdminStudentList"></app-adminstudentlist>
-  <app-studentview *ngIf="isStudentView"></app-studentview>
+  <div class="mock-page" aria-hidden="true">
+    <aside class="mock-sidebar">
+      <div class="mock-brand">
+        <span class="mock-logo"></span>
+        <span class="mock-brand-text">Liceo de Cagayan University</span>
+      </div>
+      <span class="mock-nav" *ngFor="let item of navItems">{{ item }}</span>
+    </aside>
+    <div class="mock-content">
+      <span class="mock-block wide"></span>
+      <span class="mock-block"></span>
+      <span class="mock-block"></span>
+    </div>
+  </div>
 
   <div class="overlay"></div>
 
@@ -12,7 +22,26 @@
 
     <div class="actions">
       <button type="button" class="cancel" (click)="cancel()">Cancel</button>
-      <button type="button" class="confirm" (click)="confirm()">Log Out</button>
+      <button type="button" class="confirm" (click)="confirm()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/>
+          <path d="M9 12h12l-3 -3"/>
+          <path d="M18 15l3 -3"/>
+        </svg>
+        <span>Log Out</span>
+      </button>
     </div>
   </div>
 </div>

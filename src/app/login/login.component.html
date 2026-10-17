@@ -11,7 +11,7 @@
 
       <form [class.fade-in]="animateForm" (ngSubmit)="login()">
         <div class="email-field">
-          <label for="loginEmail">School E-mail or Admin Username</label>
+          <label for="loginEmail">School E-mail</label>
           <input
             id="loginEmail"
             type="text"
@@ -50,15 +50,119 @@
           </button>
         </div>
 
-        <button type="button" class="forgot" (click)="forgotPassword()">Forgot Password?</button>
+        <button type="button" class="forgot" (click)="openForgotPassword()">Forgot Password?</button>
         <button type="submit" class="submit">Log In</button>
         <p class="login-error" *ngIf="loginError" role="alert">{{ loginError }}</p>
+        <div class="confirm-prompt" *ngIf="needsConfirmation" role="status">
+          <p>Your email isn't verified yet. Check your inbox, or send the link again.</p>
+          <button type="button" class="confirm-action" (click)="resendVerification()">Resend verification email</button>
+        </div>
+        <p class="resend-status" *ngIf="resendMessage">{{ resendMessage }}</p>
       </form>
 
       <div class="bottom-message">
         Don't have an Account?
         <button type="button" (click)="goToSignup()">Sign Up</button>
       </div>
+
+      <div class="reset-overlay" *ngIf="showResetModal">
+        <div class="reset-modal" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
+          <button type="button" class="reset-close" aria-label="Close" (click)="closeForgotPassword()">&times;</button>
+
+          <h2 id="resetTitle">Reset your password</h2>
+
+          <ng-container *ngIf="resetStep === 'email'">
+            <p class="reset-subtitle">
+              Enter your school email and we'll send a 4-digit code to reset your password.
+            </p>
+
+            <label for="resetEmail">School E-mail</label>
+            <input
+              id="resetEmail"
+              type="email"
+              name="resetEmail"
+              [(ngModel)]="resetEmail"
+              (ngModelChange)="resetError = ''"
+              [disabled]="resetSubmitting"
+              placeholder="you@liceo.edu.ph"
+            >
+
+            <p class="reset-error" *ngIf="resetError" role="alert">{{ resetError }}</p>
+
+            <button type="button" class="reset-submit" [disabled]="resetSubmitting" (click)="sendResetCode()">
+              {{ resetSubmitting ? 'Sending…' : 'Send code' }}
+            </button>
+          </ng-container>
+
+          <ng-container *ngIf="resetStep === 'code'">
+            <p class="reset-subtitle">
+              We emailed a 4-digit code to <strong>{{ resetEmail }}</strong>.
+              <span *ngIf="!resetExpired">It expires in {{ resetExpiryLabel }}.</span>
+              <span class="reset-expired" *ngIf="resetExpired">The code has expired — request a new one.</span>
+            </p>
+
+            <label for="resetCode">4-digit code</label>
+            <input
+              id="resetCode"
+              class="reset-code-input"
+              type="text"
+              inputmode="numeric"
+              maxlength="4"
+              name="resetCode"
+              [(ngModel)]="resetCode"
+              (ngModelChange)="resetError = ''"
+              [disabled]="resetSubmitting"
+              placeholder="0000"
+            >
+
+            <label for="resetNewPassword">New password</label>
+            <input
+              id="resetNewPassword"
+              type="password"
+              name="resetNewPassword"
+              [(ngModel)]="resetNewPassword"
+              (ngModelChange)="resetError = ''"
+              [disabled]="resetSubmitting"
+            >
+
+            <label for="resetConfirmPassword">Confirm new password</label>
+            <input
+              id="resetConfirmPassword"
+              type="password"
+              name="resetConfirmPassword"
+              [(ngModel)]="resetConfirmPassword"
+              (ngModelChange)="resetError = ''"
+              [disabled]="resetSubmitting"
+            >
+
+            <p class="password-hint" *ngIf="resetNewPassword && !resetPasswordValid">
+              At least 8 characters, with one uppercase letter and one number.
+            </p>
+
+            <p class="reset-error" *ngIf="resetError" role="alert">{{ resetError }}</p>
+
+            <button
+              type="button"
+              class="reset-submit"
+              [disabled]="resetSubmitting || resetExpired"
+              (click)="submitResetPassword()"
+            >
+              {{ resetSubmitting ? 'Updating…' : 'Reset password' }}
+            </button>
+
+            <button
+              type="button"
+              class="reset-resend"
+              [disabled]="resendSecondsLeft > 0 || resetSubmitting"
+              (click)="resendResetCode()"
+            >
+              {{ resendSecondsLeft > 0 ? 'Resend code in ' + resendSecondsLeft + 's' : 'Resend code' }}
+            </button>
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="app-toast" *ngIf="toastVisible" role="status">{{ toastMessage }}</div>
     </div>
   </section>
 </div>  

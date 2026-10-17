@@ -14,10 +14,75 @@ $maroon:#850d16;
   overflow:hidden;
 }
 
-app-studentview{
+.mock-page{
   position:absolute;
   inset:0;
   z-index:1;
+  display:flex;
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+.mock-sidebar{
+  width:28%;
+  min-width:260px;
+  max-width:340px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding:24px 0;
+  background:$maroon;
+}
+
+.mock-brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:22px;
+  padding:0 16px;
+}
+
+.mock-logo{
+  width:60px;
+  height:60px;
+  flex-shrink:0;
+  background:url("../assets/images/liceologo.png") center/contain no-repeat;
+}
+
+.mock-brand-text{
+  color:#fff;
+  font-family:"Times New Roman",Times,serif;
+  font-size:14px;
+  line-height:1.25;
+}
+
+.mock-nav{
+  display:block;
+  margin:0 9px;
+  padding:14px 18px;
+  border-radius:6px;
+  color:#fff;
+  font-size:14px;
+}
+
+.mock-content{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  padding:7vh 5vw;
+  background:#fff;
+}
+
+.mock-block{
+  display:block;
+  height:120px;
+  border-radius:12px;
+  background:#f1f1f1;
+}
+
+.mock-block.wide{
+  height:200px;
 }
 
 .overlay{
@@ -62,6 +127,10 @@ app-studentview{
 }
 
 .actions button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
   width:50%;
   height:38px;
   border:0;
@@ -69,6 +138,12 @@ app-studentview{
   font-size:11px;
   font-weight:600;
   cursor:pointer;
+}
+
+.actions button svg{
+  width:15px;
+  height:15px;
+  flex:0 0 auto;
 }
 
 .cancel{

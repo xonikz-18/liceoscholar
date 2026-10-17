@@ -1,0 +1,144 @@
+$maroon: #850d16;
+
+:host {
+  position: fixed;
+  inset: 0;
+  display: block;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.verify-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  background: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.brand-panel {
+  position: relative;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  background: $maroon;
+}
+
+.brand-panel::before {
+  content: "";
+  position: absolute;
+  left: 10%;
+  bottom: 0;
+  width: 100%;
+  height: 82%;
+  background-image: url("../assets/images/rodelsa.png");
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 100% 100%;
+  filter: sepia(1) saturate(4) hue-rotate(315deg) brightness(0.34) contrast(0.9);
+}
+
+.brand-panel::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  height: 400px;
+  transform: translate(-50%, -50%);
+  background: url("../assets/images/liceologo.png") center / contain no-repeat;
+}
+
+.content-panel {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.verify-card {
+  width: 76%;
+  max-width: 420px;
+  text-align: center;
+  color: #555;
+}
+
+.verify-card h1 {
+  margin: 0 0 12px;
+  color: $maroon;
+  font-size: 20px;
+}
+
+.verify-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.verify-error {
+  color: #850d16;
+}
+
+.verify-link {
+  display: inline-block;
+  margin-top: 18px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  background: $maroon;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.verify-link:hover {
+  background: #720a12;
+}
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  margin: 0 auto 16px;
+  border: 3px solid #e3c9cb;
+  border-top-color: $maroon;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 700px) {
+  .verify-page {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .brand-panel,
+  .content-panel {
+    width: 100%;
+  }
+
+  .brand-panel {
+    height: 35vh;
+    min-height: 220px;
+  }
+
+  .brand-panel::after {
+    width: 180px;
+    height: 180px;
+  }
+
+  .content-panel {
+    height: 65vh;
+    min-height: 320px;
+  }
+}

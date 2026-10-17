@@ -1,5 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit, inject } from '@angular/core';
+
+import { AccountService } from '../services/account.service';
+import { describeHttpError, resolveFileUrl } from '../services/api.config';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-profile-photo-editor',
@@ -9,6 +13,10 @@ import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
   styleUrl: './profile-photo-editor.component.scss'
 })
 export class ProfilePhotoEditorComponent implements OnInit {
+  private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly auth = inject(AuthService);
+  private readonly account = inject(AccountService);
+
   @Input({ required: true }) defaultImage = '';
   @Input({ required: true }) storageKey = '';
 
@@ -30,18 +38,29 @@ export class ProfilePhotoEditorComponent implements OnInit {
   private dragOffsetX = 0;
   private dragOffsetY = 0;
 
-  constructor(private changeDetector: ChangeDetectorRef) {}
+  /**
+   * Local cache keys that older builds used to store a cropped photo in the
+   * browser. They are deleted on load so a picture from a previous session can
+   * never reappear: the account record is the only source of truth.
+   */
+  private purgeLegacyCaches(): void {
+    const user = this.auth.user();
+    const identity = user?.id || user?.email || 'anonymous';
+
+    try {
+      localStorage.removeItem(this.storageKey);
+      localStorage.removeItem(`${this.storageKey}:${identity}`);
+    } catch {
+      /* Storage may be unavailable (private mode). */
+    }
+  }
 
   ngOnInit(): void {
-    try {
-      const savedPhoto = localStorage.getItem(this.storageKey);
-      if (savedPhoto?.startsWith('data:image/')) {
-        this.photoUrl = savedPhoto;
-      }
-    } catch (error) {
-      console.error('Unable to load the saved profile photo.', error);
-      this.errorMessage = 'The saved profile photo could not be loaded.';
-    }
+    this.purgeLegacyCaches();
+
+    // Only the photo stored on the account is used. When there isn't one the
+    // template falls back to the generic default avatar.
+    this.photoUrl = resolveFileUrl(this.auth.user()?.profilePhotoUrl);
   }
 
   openEditor(fileInput: HTMLInputElement): void {
@@ -134,7 +153,7 @@ export class ProfilePhotoEditorComponent implements OnInit {
   }
 
   saveCrop(): void {
-    if (!this.sourceImage || !this.storageKey) {
+    if (!this.sourceImage) {
       this.errorMessage = 'Select an image before saving.';
       return;
     }
@@ -166,13 +185,36 @@ export class ProfilePhotoEditorComponent implements OnInit {
       );
 
       const croppedImage = canvas.toDataURL('image/jpeg', 0.88);
-      localStorage.setItem(this.storageKey, croppedImage);
+      // Show it straight away, then replace with the stored copy once uploaded.
       this.photoUrl = croppedImage;
       this.editorOpen = false;
       this.errorMessage = '';
+      void this.persistPhoto(croppedImage);
     } catch (error) {
       console.error('Unable to save the cropped profile photo.', error);
       this.errorMessage = 'Unable to save the photo. Please choose a smaller image or try again.';
+    }
+  }
+
+  /** Uploads the cropped picture so it is stored against the account. */
+  private async persistPhoto(dataUrl: string): Promise<void> {
+    try {
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], 'profile-photo.jpg', { type: blob.type || 'image/jpeg' });
+      const user = await this.account.uploadProfilePhoto(file);
+      this.auth.updateUser(user);
+
+      const remotePhoto = resolveFileUrl(user.profilePhotoUrl);
+      if (remotePhoto) {
+        this.photoUrl = remotePhoto;
+      }
+      this.changeDetector.markForCheck();
+    } catch (error) {
+      console.error('Unable to upload the profile photo.', error);
+      this.errorMessage = describeHttpError(error);
+      // The picture was never stored, so fall back to what the account has.
+      this.photoUrl = resolveFileUrl(this.auth.user()?.profilePhotoUrl);
+      this.changeDetector.markForCheck();
     }
   }
 
