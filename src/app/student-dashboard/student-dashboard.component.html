@@ -1,0 +1,163 @@
+<section class="summary" *ngIf="user as account">
+  <div class="summary-card">
+    <div class="summary-main">
+      <p class="summary-label">My Application</p>
+      <h2>{{ account.scholarshipType || 'No scholarship selected' }}</h2>
+      <p class="summary-meta">
+        {{ account.course || '—' }} &middot; {{ account.yearLevel || '—' }} &middot; Status: {{ account.status || 'Pending' }}
+      </p>
+    </div>
+
+    <div class="summary-progress">
+      <div class="progress-text">
+        <strong>{{ submittedCount() }}</strong> of {{ requiredDocuments.length }} documents submitted
+      </div>
+      <div
+        class="progress-track"
+        role="progressbar"
+        [attr.aria-valuenow]="submittedCount()"
+        [attr.aria-valuemax]="requiredDocuments.length"
+      >
+        <div
+          class="progress-fill"
+          [style.width.%]="requiredDocuments.length ? (submittedCount() / requiredDocuments.length) * 100 : 0"
+        ></div>
+      </div>
+      <a class="summary-link" routerLink="/studentview/requirements">
+        Go to requirement submission
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14"/>
+          <path d="M13 6l6 6l-6 6"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="dashboard">
+  <div class="section-title">
+    <span>Scholarship Dashboard</span>
+    <span class="info" aria-label="Scholarship qualifications and requirements help"></span>
+  </div>
+
+  <div class="dash-card" *ngIf="scholarships.length; else noScholarships">
+    <div class="tier-tabs" role="tablist" aria-label="Scholarship tiers">
+      <button
+        type="button"
+        role="tab"
+        class="tier-tab"
+        *ngFor="let tier of scholarships"
+        [class.active]="tier.id === activeScholarshipId"
+        [class.applied]="isApplied(tier)"
+        [attr.aria-selected]="tier.id === activeScholarshipId"
+        (click)="selectScholarship(tier)"
+      >
+        <span class="tier-tab-name">{{ tier.shortName }}</span>
+        <span class="tier-tab-score">{{ tier.qualification }}</span>
+        <span class="tier-tab-badge" *ngIf="isApplied(tier)">Your application</span>
+      </button>
+    </div>
+
+    <ng-container *ngFor="let tier of scholarships">
+      <div class="tier-detail" *ngIf="tier.id === activeScholarshipId">
+        <header class="tier-head">
+          <h3>{{ tier.name }}</h3>
+          <div class="tier-qualification">
+            <span class="tier-qual-label">Qualification</span>
+            <strong>{{ tier.qualification }}</strong>
+          </div>
+        </header>
+
+        <div class="tier-grid">
+          <section class="tier-block">
+            <h4>Coverage</h4>
+            <ul>
+              <li *ngFor="let item of tier.coverage">{{ item }}</li>
+            </ul>
+          </section>
+
+          <section class="tier-block">
+            <h4>Duration</h4>
+            <p>{{ tier.duration }}</p>
+          </section>
+
+          <section class="tier-block wide">
+            <h4>Requirements for Entry</h4>
+            <ul>
+              <li *ngFor="let item of tier.entryRequirements">{{ item }}</li>
+            </ul>
+          </section>
+
+          <section class="tier-block wide" *ngIf="tier.programs.length">
+            <h4>Eligible Programs</h4>
+            <ul class="program-list">
+              <li *ngFor="let program of tier.programs">{{ program }}</li>
+            </ul>
+          </section>
+
+          <section class="tier-block wide">
+            <h4>Renewal Guidelines</h4>
+            <ul>
+              <li *ngFor="let item of tier.renewalGuidelines">{{ item }}</li>
+            </ul>
+          </section>
+
+          <section class="tier-block wide">
+            <h4>Documents to Submit</h4>
+            <ul class="document-list">
+              <li *ngFor="let doc of requiredDocuments" [class.missing]="!isSubmitted(doc)">
+                <svg
+                  *ngIf="isSubmitted(doc)"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M5 12l5 5l10 -10"/>
+                </svg>
+                <svg
+                  *ngIf="!isSubmitted(doc)"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <circle cx="12" cy="12" r="9"/>
+                  <path d="M12 8v5"/>
+                  <path d="M12 16.5v.01"/>
+                </svg>
+                <span>{{ doc }}</span>
+                <em class="doc-status">{{ statusFor(doc) }}</em>
+              </li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </ng-container>
+
+    <p class="dash-note">
+      These qualifications come from the official Liceo de Cagayan University scholarship guidelines.
+      An administrator makes the final decision on your application.
+    </p>
+  </div>
+
+  <ng-template #noScholarships>
+    <div class="req-card">
+      <p class="dash-note">Scholarship details are unavailable right now.</p>
+    </div>
+  </ng-template>
+</section>

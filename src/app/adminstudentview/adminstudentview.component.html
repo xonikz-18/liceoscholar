@@ -9,12 +9,69 @@
     </div>
 
     <nav class="menu" aria-label="Admin navigation">
-      <button class="menu-item" type="button" (click)="backToStudentList()">Student List</button>
-      <button class="menu-item" type="button" (click)="openAdminProfile()">Admin Profile</button>
+      <button class="menu-item" type="button" (click)="backToStudentList()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.25"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <path d="M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/>
+          <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          <path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/>
+        </svg>
+        <span>Student List</span>
+      </button>
+      <button class="menu-item" type="button" (click)="openAdminProfile()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.25"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/>
+          <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+        </svg>
+        <span>Admin Profile</span>
+      </button>
     </nav>
 
     <div class="logout-item">
-      <button class="logout-hover" type="button" (click)="logout()">Log Out</button>
+      <button class="logout-hover" type="button" (click)="logout()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.25"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/>
+            <path d="M9 12h12l-3 -3"/>
+            <path d="M18 15l3 -3"/>
+          </svg>
+          <span>Log Out</span>
+        </button>
     </div>
   </aside>
 
@@ -29,7 +86,15 @@
         </div>
 
         <div class="profile-grid">
-          <div class="student-photo" role="img" [attr.aria-label]="student.name"></div>
+          <img
+            *ngIf="student.photoUrl; else defaultStudentPhoto"
+            class="student-photo"
+            [src]="student.photoUrl"
+            [alt]="student.name"
+          >
+          <ng-template #defaultStudentPhoto>
+            <div class="student-photo" role="img" aria-label="No profile picture uploaded"></div>
+          </ng-template>
 
           <div class="details">
             <div class="row">
@@ -68,6 +133,13 @@
                 <input [value]="student.scholarshipType" readonly>
               </div>
             </div>
+
+            <div class="row">
+              <div class="email-field">
+                <label>School E-mail</label>
+                <input [value]="student.email" readonly>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -82,13 +154,43 @@
           <div class="req-row" *ngFor="let requirement of requirements; let i = index">
             <span class="date">{{ requirement.date }}</span>
             <span class="separator" aria-hidden="true">•</span>
-            <span class="file-name">{{ requirement.fileName }}</span>
+
+            <button
+              *ngIf="requirement.fileUrl; else noFile"
+              class="file-name file-button"
+              type="button"
+              (click)="openPreview(requirement)"
+            >
+              <span class="file-name-text">{{ requirement.fileName }}</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M7 3h10l4 4v14a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-16a2 2 0 0 1 2 -2z"/>
+                <path d="M14 3v5h5"/>
+                <path d="M12 11v6"/>
+                <path d="M9.5 13.5 12 11l2.5 2.5"/>
+              </svg>
+            </button>
+            <ng-template #noFile>
+              <span class="file-name empty">No file uploaded</span>
+            </ng-template>
+
             <span class="description">{{ requirement.description }}</span>
 
             <div class="status-control">
               <button
                 class="status-button"
-                [ngClass]="requirement.status.toLowerCase()"
+                [ngClass]="statusClass(requirement.status)"
                 type="button"
                 [attr.aria-expanded]="openStatusIndex === i"
                 (click)="toggleStatus(i)"
@@ -107,11 +209,246 @@
                 </button>
               </div>
             </div>
+
+            <div class="ai-control">
+              <!-- The university form is read by hand, so the AI never touches it. -->
+              <span class="ai-hint manual" *ngIf="isManualReview(requirement)">
+                Manual review
+              </span>
+
+              <!-- Nothing is shown until the AI has actually finished. -->
+              <span class="ai-reviewing" *ngIf="isReviewing(requirement)">
+                <span class="ai-spinner" aria-hidden="true"></span>
+                Reviewing…
+              </span>
+
+              <!-- Verdict appears only after a review completed. -->
+              <button
+                *ngIf="hasVerdict(requirement)"
+                class="ai-verdict"
+                type="button"
+                [ngClass]="verdictClass(requirement.analysis!.verdict)"
+                (click)="toggleAnalysis(i)"
+              >
+                {{ verdictLabelShort(requirement.analysis!.verdict) }}
+              </button>
+
+              <button
+                *ngIf="requirement.aiReviewable && requirement.analysisState === 'error'"
+                class="ai-verdict review"
+                type="button"
+                (click)="toggleAnalysis(i)"
+              >
+                Not reviewed
+              </button>
+
+              <!-- Only meaningful for documents the AI actually reviews; the
+                   file column already says whether anything was uploaded. -->
+              <button
+                *ngIf="requirement.aiReviewable && requirement.analysisState === 'none' && !requirement.fileName"
+                class="ai-hint"
+                type="button"
+                disabled
+              >
+                No file
+              </button>
+
+              <!-- Retry, only when there is something to review. -->
+              <button
+                *ngIf="
+                  requirement.aiReviewable &&
+                  requirement.fileName &&
+                  !isReviewing(requirement) &&
+                  !hasVerdict(requirement)
+                "
+                class="ai-button"
+                type="button"
+                [disabled]="analyzingId !== null"
+                (click)="analyze(i)"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M4 4m0 1a1 1 0 0 1 1 -1h14a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-14a1 1 0 0 1 -1 -1z"/>
+                  <path d="M4 8h16"/>
+                  <path d="M9 8v11"/>
+                  <path d="M15 8v11"/>
+                  <path d="M9 13h6"/>
+                </svg>
+                <span>{{ analyzingId === requirement.id ? 'Reviewing…' : 'Run AI Check' }}</span>
+              </button>
+            </div>
           </div>
         </div>
       </section>
     </div>
   </main>
+
+  <!-- Uploaded file preview -->
+  <div
+    class="preview-overlay"
+    *ngIf="preview"
+    (click)="closePreview()"
+    (keydown.escape)="closePreview()"
+  >
+    <section
+      class="preview-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="previewTitle"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="preview-head">
+        <div>
+          <h3 id="previewTitle">{{ preview.description }}</h3>
+          <p class="preview-file">{{ preview.fileName }}</p>
+        </div>
+        <div class="preview-head-actions">
+          <a
+            class="preview-open"
+            [href]="preview.fileUrl"
+            target="_blank"
+            rel="noopener"
+          >Open in new tab</a>
+          <button
+            type="button"
+            class="preview-close"
+            aria-label="Close preview"
+            (click)="closePreview()"
+          >&times;</button>
+        </div>
+      </header>
+
+      <div class="preview-body">
+        <img
+          *ngIf="isImage(preview.mimeType); else notAnImage"
+          [src]="preview.fileUrl"
+          [alt]="preview.fileName"
+        >
+        <ng-template #notAnImage>
+          <div class="preview-unsupported">
+            <p>This file type cannot be shown here.</p>
+            <a [href]="preview.fileUrl" target="_blank" rel="noopener">Open {{ preview.fileName }}</a>
+          </div>
+        </ng-template>
+      </div>
+
+      <footer class="preview-foot" *ngIf="preview.analysis as result">
+        <span class="preview-verdict" [ngClass]="verdictClass(result.verdict)">
+          {{ verdictLabel(result.verdict) }} · {{ (result.confidence * 100).toFixed(0) }}%
+        </span>
+        <span class="preview-summary">{{ result.summary }}</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- AI result popup -->
+  <div
+    class="ai-overlay"
+    *ngIf="openAnalysisIndex !== null && requirements[openAnalysisIndex] as shown"
+    (click)="closeAnalysis()"
+  >
+    <section
+      class="ai-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="aiDialogTitle"
+      (click)="$event.stopPropagation()"
+      (keydown.escape)="closeAnalysis()"
+    >
+      <header class="ai-dialog-head" [ngClass]="verdictClass(shown.analysis?.verdict ?? '')">
+        <div class="ai-dialog-title-row">
+          <h3 id="aiDialogTitle">{{ shown.description }} — AI Review</h3>
+          <button
+            type="button"
+            class="ai-dialog-close"
+            aria-label="Close"
+            (click)="closeAnalysis()"
+          >&times;</button>
+        </div>
+
+        <ng-container *ngIf="shown.analysis as result; else aiProblem">
+          <p class="ai-dialog-verdict">{{ verdictLabel(result.verdict) }}</p>
+          <p class="ai-dialog-confidence">
+            {{ (result.confidence * 100).toFixed(0) }}% confidence
+            <span *ngIf="result.documentType"> · seen as {{ result.documentType }}</span>
+          </p>
+        </ng-container>
+
+        <ng-template #aiProblem>
+          <p class="ai-dialog-verdict">Not reviewed</p>
+        </ng-template>
+      </header>
+
+      <div class="ai-dialog-body">
+        <p class="ai-dialog-error" *ngIf="analysisError || shown.analysisError" role="alert">
+          {{ analysisError || shown.analysisError }}
+        </p>
+
+        <ng-container *ngIf="shown.analysis as result; else aiNoResult">
+          <section class="ai-block">
+            <h4>Summary</h4>
+            <p class="ai-text">{{ result.summary }}</p>
+          </section>
+
+          <section class="ai-block" *ngIf="result.recommendation">
+            <h4>Recommendation</h4>
+            <p class="ai-text">{{ result.recommendation }}</p>
+          </section>
+
+          <section class="ai-block" *ngIf="result.checks.length">
+            <h4>Checks</h4>
+            <ul class="ai-checks">
+              <li *ngFor="let check of result.checks" [class.failed]="!check.passed">
+                <span class="ai-mark" [class.ok]="check.passed" aria-hidden="true">
+                  {{ check.passed ? '✓' : '✕' }}
+                </span>
+                <div>
+                  <strong>{{ check.criterion }}</strong>
+                  <p>{{ check.note }}</p>
+                </div>
+              </li>
+            </ul>
+          </section>
+
+          <section class="ai-block" *ngIf="result.issues.length">
+            <h4>Issues found</h4>
+            <ul class="ai-issues">
+              <li *ngFor="let issue of result.issues">{{ issue }}</li>
+            </ul>
+          </section>
+
+          <p class="ai-disclaimer">
+            AI suggestion only — a human administrator makes the final decision.
+            <span *ngIf="result.analysedAt">
+              Reviewed {{ result.analysedAt | date: 'MM/dd/yyyy h:mm a' }} using {{ result.model }}.
+            </span>
+          </p>
+        </ng-container>
+
+        <ng-template #aiNoResult>
+          <p class="ai-text">The AI could not finish reviewing this file.</p>
+        </ng-template>
+      </div>
+
+      <footer class="ai-dialog-foot">
+        <button type="button" class="ai-dialog-retry" (click)="analyze(openAnalysisIndex!)">
+          Run AI Check again
+        </button>
+        <button type="button" class="ai-dialog-done" (click)="closeAnalysis()">Close</button>
+      </footer>
+    </section>
+  </div>
 
   <ng-template #studentNotFound>
     <main class="content not-found">

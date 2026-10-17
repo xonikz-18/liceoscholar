@@ -23,16 +23,17 @@
 }
 
 .default-photo {
+  background-color: #f1f1f1;
   background-position: center;
   background-size: cover;
 }
 
 .student-default {
-  background-image: url("../assets/images/mockpfp.png");
+  background-image: url("../assets/images/default-avatar.svg");
 }
 
 .admin-default {
-  background-image: url("../assets/images/adminmockpfp.png");
+  background-image: url("../assets/images/default-avatar.svg");
 }
 
 .edit-photo {

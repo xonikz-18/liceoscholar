@@ -1,0 +1,264 @@
+$maroon: #850d16;
+$gray: #d9d9d9;
+
+:host {
+  display: block;
+}
+
+.profile {
+  width: 100%;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  color: #8b9199;
+  font-size: 17px;
+}
+
+.section-title.sub {
+  margin-top: 46px;
+}
+
+.lock-icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 22px;
+  background: url("../assets/icons/lockicon.png") center/contain no-repeat;
+}
+
+.profile-card,
+.scholar-card {
+  width: 100%;
+  padding: 22px;
+  border-radius: 12px;
+  background: #f1f1f1;
+}
+
+.profile-grid {
+  display: flex;
+  gap: 40px;
+}
+
+.student-photo {
+  flex: 0 0 230px;
+  width: 230px;
+  height: 230px;
+}
+
+.details {
+  flex: 1;
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.row:last-child {
+  margin-bottom: 0;
+}
+
+.details label {
+  display: block;
+  margin: 0 0 5px 3px;
+  color: #aaa;
+  font-size: 11px;
+}
+
+.details input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  background: $gray;
+  color: #333;
+  font-size: 14px;
+}
+
+.name-field {
+  flex: 1 1 auto;
+}
+
+.suffix-field {
+  flex: 0 0 130px;
+}
+
+.course-field {
+  flex: 1 1 auto;
+}
+
+.year-field {
+  flex: 0 0 150px;
+}
+
+.age-field {
+  flex: 0 0 100px;
+}
+
+.sex-field {
+  flex: 0 0 180px;
+}
+
+.email-field {
+  flex: 1 1 auto;
+}
+
+/* --- Editable scholarship type --- */
+.scholar-current {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.scholar-name {
+  margin: 0;
+  color: #1f2933;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.scholar-qual {
+  margin: 6px 0 0;
+  color: #6b7280;
+  font-size: 12.5px;
+}
+
+.scholar-qual strong {
+  color: $maroon;
+}
+
+.edit-scholar {
+  height: 36px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 18px;
+  background: $maroon;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.edit-scholar:hover {
+  background: #720a12;
+}
+
+.scholar-label {
+  display: block;
+  margin: 0 0 6px 3px;
+  color: #aaa;
+  font-size: 11px;
+}
+
+.scholar-edit select {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  outline: 0;
+  background: $gray;
+  color: #1f2933;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.scholar-edit select:disabled {
+  cursor: not-allowed;
+  opacity: .65;
+}
+
+.scholar-hint {
+  margin: 10px 0 0;
+  color: #6b7280;
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+.scholar-error {
+  margin: 10px 0 0;
+  color: $maroon;
+  font-size: 12px;
+}
+
+.scholar-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.scholar-actions button {
+  height: 38px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.scholar-actions .cancel {
+  background: #e4e4e4;
+  color: #555;
+}
+
+.scholar-actions .save {
+  background: $maroon;
+  color: #fff;
+}
+
+.scholar-actions button:disabled {
+  cursor: not-allowed;
+  opacity: .6;
+}
+
+.scholar-message {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #eaf5ee;
+  color: #2f7d4f;
+  font-size: 12px;
+}
+
+.account-note {
+  margin: 18px 2px 0;
+  color: #9aa0a6;
+  font-size: 11px;
+  font-style: italic;
+  line-height: 1.55;
+}
+
+@media (max-width: 800px) {
+  .profile-grid {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .student-photo {
+    flex: 0 0 170px;
+    width: 170px;
+    height: 170px;
+    align-self: center;
+  }
+
+  .row {
+    flex-wrap: wrap;
+  }
+
+  .course-field,
+  .name-field,
+  .email-field,
+  .sex-field {
+    flex: 1 1 100%;
+  }
+}

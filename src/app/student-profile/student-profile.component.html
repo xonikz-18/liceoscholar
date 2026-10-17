@@ -1,0 +1,118 @@
+<section class="profile" *ngIf="user as account">
+  <div class="section-title">
+    <span>Student Profile</span>
+    <span class="lock-icon" aria-hidden="true"></span>
+  </div>
+
+  <div class="profile-card">
+    <div class="profile-grid">
+      <app-profile-photo-editor
+        class="student-photo"
+        defaultImage="student-default"
+        storageKey="studentProfilePhoto"
+      ></app-profile-photo-editor>
+
+      <div class="details">
+        <div class="row">
+          <div class="name-field">
+            <label>Full Name</label>
+            <input [value]="account.fullName || '—'" readonly>
+          </div>
+
+          <div class="suffix-field">
+            <label>Suffix</label>
+            <input [value]="account.suffix || 'N/A'" readonly>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="course-field">
+            <label>Course</label>
+            <input [value]="account.course || '—'" readonly>
+          </div>
+
+          <div class="year-field">
+            <label>Year Level</label>
+            <input [value]="account.yearLevel || '—'" readonly>
+          </div>
+
+          <div class="age-field">
+            <label>Age</label>
+            <input [value]="account.age !== null ? account.age : '—'" readonly>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="sex-field">
+            <label>Sex</label>
+            <input [value]="account.sex || 'N/A'" readonly>
+          </div>
+
+          <div class="email-field">
+            <label>School E-mail</label>
+            <input [value]="account.email || '—'" readonly>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title sub">
+    <span>Scholarship Type</span>
+  </div>
+
+  <div class="scholar-card">
+    <div class="scholar-current" *ngIf="!editingScholarship">
+      <div>
+        <p class="scholar-name">{{ account.scholarshipType || 'No scholarship selected' }}</p>
+        <p class="scholar-qual" *ngIf="appliedScholarship as applied">
+          Qualification: <strong>{{ applied.qualification }}</strong>
+          &middot; {{ applied.duration }}
+        </p>
+      </div>
+
+      <button type="button" class="edit-scholar" (click)="startEditScholarship()">Change</button>
+    </div>
+
+    <div class="scholar-edit" *ngIf="editingScholarship">
+      <label class="scholar-label" for="scholarshipSelect">Choose your scholarship</label>
+      <select
+        id="scholarshipSelect"
+        [(ngModel)]="selectedScholarship"
+        name="scholarshipType"
+        [disabled]="savingScholarship"
+      >
+        <option value="" disabled>Select a scholarship</option>
+        <option *ngFor="let tier of scholarships" [value]="tier.name">
+          {{ tier.name }} — {{ tier.qualification }}
+        </option>
+      </select>
+
+      <p class="scholar-hint" *ngIf="selectedScholarship">
+        <ng-container *ngFor="let tier of scholarships">
+          <ng-container *ngIf="tier.name === selectedScholarship">
+            {{ tier.coverage.join(' · ') }} &middot; Renewal: {{ tier.renewalGuidelines[tier.renewalGuidelines.length - 1] }}
+          </ng-container>
+        </ng-container>
+      </p>
+
+      <p class="scholar-error" *ngIf="scholarshipError" role="alert">{{ scholarshipError }}</p>
+
+      <div class="scholar-actions">
+        <button type="button" class="cancel" (click)="cancelEditScholarship()" [disabled]="savingScholarship">
+          Cancel
+        </button>
+        <button type="button" class="save" (click)="saveScholarship()" [disabled]="savingScholarship">
+          {{ savingScholarship ? 'Saving…' : 'Save' }}
+        </button>
+      </div>
+    </div>
+
+    <p class="scholar-message" *ngIf="scholarshipMessage" role="status">{{ scholarshipMessage }}</p>
+  </div>
+
+  <p class="account-note">
+    Name, course, year level, age and sex come from your sign up and can only be
+    changed by the scholarship office. Contact the registrar if something is wrong.
+  </p>
+</section>

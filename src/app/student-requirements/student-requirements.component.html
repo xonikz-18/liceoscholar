@@ -1,0 +1,180 @@
+<section class="requirements">
+  <div class="section-title">
+    <span>Requirement Submission</span>
+    <span class="info" aria-label="Requirement submission help"></span>
+  </div>
+
+  <p class="intro" *ngIf="scholarshipType">
+    Upload the documents below for your
+    <strong>{{ scholarshipType }}</strong> application. Your 2x2 picture and report card are
+    checked automatically by AI, while the form is read by an administrator.
+    An administrator always makes the final decision.
+  </p>
+
+  <!-- Shown the moment an AI-reviewed document is uploaded. -->
+  <div class="ai-working" *ngIf="isAiWorking()" role="status" aria-live="polite">
+    <span class="ai-working-spinner" aria-hidden="true"></span>
+
+    <div class="ai-working-text">
+      <strong>The AI is processing your {{ aiWorkingLabel() }}.</strong>
+      <p>
+        Please wait — this usually takes a few seconds. The result will appear here on its
+        own, so there is nothing you need to refresh or re-upload.
+      </p>
+    </div>
+  </div>
+
+  <div class="req-card">
+    <div class="req-item" *ngFor="let req of requirements; let i = index">
+      <div class="req-row">
+        <span class="date">{{ req.date }}</span>
+        <span class="separator" aria-hidden="true">•</span>
+
+        <div class="file-cell">
+          <ng-container *ngIf="req.fileName; else uploadTemplate">
+            <button type="button" class="file-name" (click)="previewFile(i)">
+              {{ truncateFileName(req.fileName) }}
+            </button>
+
+            <button type="button" class="remove-file" (click)="removeFile(i)" aria-label="Remove file">
+              &times;
+            </button>
+          </ng-container>
+
+          <ng-template #uploadTemplate>
+            <input
+              class="file-input"
+              [id]="'upload-' + i"
+              type="file"
+              accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx"
+              (change)="onFileSelected($event, i)"
+            >
+
+            <label class="upload" [for]="'upload-' + i">
+              {{ uploadingIndex === i ? 'Uploading…' : 'Upload' }}
+            </label>
+          </ng-template>
+        </div>
+
+        <span class="description">{{ req.description }}</span>
+
+        <span class="review-state" *ngIf="isReviewing(req)">
+          <span class="spinner" aria-hidden="true"></span>
+          Reviewing…
+        </span>
+
+        <b *ngIf="!isReviewing(req)" [class]="req.status.toLowerCase().replace(/\s+/g, '-')">
+          {{ req.status }}
+        </b>
+
+        <!-- AI feedback, only once the review has actually finished -->
+        <button
+          *ngIf="hasVerdict(req)"
+          type="button"
+          class="ai-badge"
+          [ngClass]="verdictClass(req)"
+          [attr.aria-expanded]="openFeedback === i"
+          (click)="toggleFeedback(i)"
+        >
+          {{ verdictLabel(req) }}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 9l6 6l6 -6"/>
+          </svg>
+        </button>
+
+        <span *ngIf="needsReview(req)" class="ai-badge review" aria-disabled="true">
+          Not reviewed
+        </span>
+      </div>
+
+      <!-- Reminder under a row, e.g. where to get the official grades. -->
+      <p class="req-note" *ngIf="noteFor(req) as note">
+        {{ note }}
+      </p>
+
+      <!-- AI feedback panel -->
+      <div class="ai-panel" *ngIf="openFeedback === i && hasVerdict(req)">
+        <p class="ai-summary">{{ req.analysis?.summary }}</p>
+
+        <dl class="ai-meta">
+          <div>
+            <dt>What the reviewer saw</dt>
+            <dd>{{ req.analysis?.documentType || 'Not stated' }}</dd>
+          </div>
+          <div>
+            <dt>Confidence</dt>
+            <dd>{{ ((req.analysis?.confidence ?? 0) * 100).toFixed(0) }}%</dd>
+          </div>
+        </dl>
+
+        <div class="ai-block" *ngIf="req.analysis?.checks?.length">
+          <h4>What was checked</h4>
+          <ul class="ai-checks">
+            <li *ngFor="let check of req.analysis?.checks" [class.failed]="!check.passed">
+              <span class="ai-mark" [class.ok]="check.passed" aria-hidden="true">
+                {{ check.passed ? '✓' : '✕' }}
+              </span>
+              <div>
+                <strong>{{ check.criterion }}</strong>
+                <p>{{ check.note }}</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="ai-block" *ngIf="req.analysis?.issues?.length">
+          <h4>What to fix</h4>
+          <ul class="ai-issues">
+            <li *ngFor="let issue of req.analysis?.issues">{{ issue }}</li>
+          </ul>
+        </div>
+
+        <p class="ai-advice" *ngIf="req.analysis?.studentAdvice">
+          <strong>What to do next:</strong> {{ req.analysis?.studentAdvice }}
+        </p>
+
+        <p class="ai-disclaimer">
+          This is an automated suggestion to help you correct your submission.
+          A scholarship administrator reviews every application and makes the final decision.
+          <span *ngIf="req.analysis?.analysedAt">
+            Last checked {{ req.analysis?.analysedAt | date: 'MM/dd/yyyy h:mm a' }}.
+          </span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint">
+    Accepted formats: JPG, PNG, PDF, DOC, DOCX, XLS and XLSX. Replacing a file
+    starts a fresh automatic review.
+  </p>
+</section>
+
+<div class="preview-overlay" *ngIf="preview" (click)="closePreview()">
+  <div class="preview-modal" (click)="$event.stopPropagation()">
+    <button type="button" class="close-preview" aria-label="Close preview" (click)="closePreview()">
+      &times;
+    </button>
+
+    <h3>{{ preview.fileName }}</h3>
+
+    <img
+      *ngIf="preview.type.startsWith('image/')"
+      [src]="preview.dataUrl"
+      alt="Preview"
+      class="preview-image"
+    >
+
+    <iframe
+      *ngIf="preview.type === 'application/pdf'"
+      [src]="preview.safeUrl"
+      class="preview-pdf"
+    ></iframe>
+
+    <div *ngIf="preview.isDocument" class="document-preview">
+      <div class="document-icon">📄</div>
+      <strong>{{ preview.fileName }}</strong>
+      <span>{{ preview.type || 'Document file' }}</span>
+    </div>
+  </div>
+</div>

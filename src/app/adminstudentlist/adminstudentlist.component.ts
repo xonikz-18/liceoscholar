@@ -1,10 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { describeHttpError } from '../services/api.config';
+import type { StudentStatus } from '../services/models';
+import { StudentService } from '../services/student.service';
+
 type FilterKey = 'scholarshipType' | 'course' | 'yearLevel' | 'status';
-type StudentStatus = 'Active' | 'Pending' | 'Inactive';
 
 interface Student {
   id: string;
@@ -22,7 +25,11 @@ interface Student {
   templateUrl: './adminstudentlist.component.html',
   styleUrl: './adminstudentlist.component.scss'
 })
-export class AdminstudentlistComponent {
+export class AdminstudentlistComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly studentsApi = inject(StudentService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
+
   readonly filterKeys: FilterKey[] = ['scholarshipType', 'course', 'yearLevel', 'status'];
   searchTerm = '';
   activeFilter: FilterKey | null = null;
@@ -47,47 +54,51 @@ export class AdminstudentlistComponent {
       'Half Academic Scholarship',
       'Non-Academic Scholarship'
     ],
-    course: ['BSIT', 'SBMA', 'COE', 'CON', 'COM', 'CAS', 'CRS', 'CCJ', 'COP', 'CMLS', 'COD', 'COL', 'COA'],
+    course: [
+      'School of Business, Management, and Accountancy',
+      'College of Nursing',
+      'College of Law',
+      'College of Arts and Science',
+      'College of Information Technology',
+      'College of Radiologic Technology',
+      'Conservatory of Music, Theater, and Dance',
+      'College of Engineering',
+      'School of Teacher Education',
+      'College of Rehabilitation Sciences',
+      'College of Criminal Justice',
+      'College of Pharmacy',
+      'College of Medical Laboratory Science',
+      'College of Dentistry',
+      'College of Aviation'
+    ],
     yearLevel: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
-    status: ['Active', 'Pending', 'Inactive']
+    status: ['Pending', 'Qualified', 'Not Qualified']
   };
 
-  readonly students: Student[] = [
-    {
-      id: 'samantha-oliveros',
-      name: 'Oliveros, Samantha G. R.',
-      course: 'BSIT',
-      yearLevel: '3rd Year',
-      scholarshipType: 'Full Academic Scholarship',
-      status: 'Active'
-    },
-    {
-      id: 'nikki-pacatang',
-      name: 'Pacatang, Nikki U.',
-      course: 'BSIT',
-      yearLevel: '3rd Year',
-      scholarshipType: 'Half Academic Scholarship',
-      status: 'Pending'
-    },
-    {
-      id: 'christy-reyes',
-      name: 'Reyes, Christy Ann E.',
-      course: 'BSIT',
-      yearLevel: '3rd Year',
-      scholarshipType: 'Non-Academic Scholarship',
-      status: 'Pending'
-    },
-    {
-      id: 'teddy-bean',
-      name: 'Bean, Teddy Mc. Q.',
-      course: 'BSOT',
-      yearLevel: '2nd Year',
-      scholarshipType: 'Full Academic Scholarship',
-      status: 'Inactive'
-    }
-  ];
+  students: Student[] = [];
 
-  constructor(private router: Router) {}
+  ngOnInit(): void {
+    void this.loadStudents();
+  }
+
+  private async loadStudents(): Promise<void> {
+    try {
+      const list = await this.studentsApi.listStudents();
+
+      this.students = list.map((student) => ({
+        id: student.id,
+        name: student.fullName,
+        course: student.course,
+        yearLevel: student.yearLevel,
+        scholarshipType: student.scholarshipType,
+        status: student.status ?? 'Pending'
+      }));
+    } catch (error) {
+      alert(describeHttpError(error));
+    } finally {
+      this.changeDetector.markForCheck();
+    }
+  }
 
   get filteredStudents(): Student[] {
     const search = this.searchTerm.trim().toLowerCase();
@@ -119,6 +130,11 @@ export class AdminstudentlistComponent {
 
   toggleFilter(key: FilterKey): void {
     this.activeFilter = this.activeFilter === key ? null : key;
+  }
+
+  /** Turns a status into a CSS class: "Not Qualified" becomes "not-qualified". */
+  statusClass(status: string | null | undefined): string {
+    return (status ?? 'Pending').toLowerCase().replace(/\s+/g, '-');
   }
 
   chooseFilter(key: FilterKey, value: string): void {

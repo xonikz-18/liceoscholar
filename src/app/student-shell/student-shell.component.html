@@ -1,0 +1,71 @@
+<div class="page">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true"></div>
+      <div class="brand-text">
+        <strong>Liceo de Cagayan University</strong>
+        <span>Scholarship Automation</span>
+      </div>
+    </div>
+
+    <nav class="menu" aria-label="Student navigation">
+      <a
+        class="menu-item"
+        *ngFor="let item of navItems"
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        <span class="menu-icon" [ngSwitch]="item.icon" aria-hidden="true">
+          <!-- Dashboard -->
+          <svg *ngSwitchCase="'dashboard'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h6v7H4zM14 4h6v4h-6zM14 12h6v8h-6zM4 15h6v5H4z"/>
+          </svg>
+
+          <!-- Upload / requirements -->
+          <svg *ngSwitchCase="'upload'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/>
+            <path d="M7 9l5 -5l5 5"/>
+            <path d="M12 4v12"/>
+          </svg>
+
+          <!-- User -->
+          <svg *ngSwitchDefault viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/>
+            <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+          </svg>
+        </span>
+        <span>{{ item.label }}</span>
+      </a>
+    </nav>
+
+    <div class="logout-item">
+      <button class="logout-hover" type="button" (click)="logout()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.25"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/>
+          <path d="M9 12h12l-3 -3"/>
+          <path d="M18 15l3 -3"/>
+        </svg>
+        <span>Log Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="workspace">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>
