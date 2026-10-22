@@ -9,11 +9,20 @@ import type { ScholarshipCatalogue } from './models';
 @Injectable({ providedIn: 'root' })
 export class ScholarshipService {
   private readonly http = inject(HttpClient);
+  private catalogueCache: ScholarshipCatalogue | null = null;
+
+  /** Cached catalogue for pages that need to render scholarship details immediately. */
+  getCachedCatalogue(): ScholarshipCatalogue | null {
+    return this.catalogueCache;
+  }
 
   /** Reads the scholarship tiers and the required documents from the API. */
   getCatalogue(): Promise<ScholarshipCatalogue> {
     return lastValueFrom(
       this.http.get<ScholarshipCatalogue>(`${API_BASE_URL}/scholarships`)
-    );
+    ).then((catalogue) => {
+      this.catalogueCache = catalogue;
+      return catalogue;
+    });
   }
 }

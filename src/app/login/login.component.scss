@@ -70,7 +70,7 @@ $gray: #d9d9d9;
 
 .tabs {
   position: absolute;
-  top: 12%;
+  top: 8%;
   left: 50%;
   width: 56%;
   max-width: 360px;
@@ -122,7 +122,7 @@ $gray: #d9d9d9;
 
 form {
   position: absolute;
-  top: calc(22% + 12px);
+  top: calc(18% + 12px);
   left: 50%;
   width: 76%;
   max-width: 480px;
@@ -158,8 +158,12 @@ form {
 
 label {
   margin: 0 0 7px 3px;
-  color: #aaa;
+  color: #000;
   font-size: 11px;
+}
+
+label[for="loginPassword"] {
+  margin-bottom: 1px;
 }
 
 /* Red asterisk marking a required field. */
@@ -521,7 +525,7 @@ input:focus {
   }
 
   form {
-    top: calc(18% + 12px);
+    top: calc(14% + 12px);
     width: 84%;
   }
 

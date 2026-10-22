@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { AccountService } from '../services/account.service';
+import { describeHttpError } from '../services/api.config';
 import { DEFAULT_STUDENT_STATUS } from '../services/models';
 import type { ApiRequirement, AuthUser, Scholarship } from '../services/models';
 import { ScholarshipService } from '../services/scholarship.service';
@@ -25,6 +26,8 @@ export class StudentDashboardComponent implements OnInit {
   scholarships: Scholarship[] = [];
   requiredDocuments: string[] = [];
   activeScholarshipId = '';
+  isLoading = true;
+  loadError = '';
 
   /** The application status, never blank: new accounts read as Pending. */
   get status(): string {
@@ -34,7 +37,10 @@ export class StudentDashboardComponent implements OnInit {
     void this.load();
   }
 
-  private async load(): Promise<void> {
+  async load(): Promise<void> {
+    this.isLoading = true;
+    this.loadError = '';
+
     try {
       const [profile, catalogue] = await Promise.all([
         this.account.getMyProfile(),
@@ -48,7 +54,10 @@ export class StudentDashboardComponent implements OnInit {
 
       const applied = this.scholarships.find((tier) => tier.name === this.user?.scholarshipType);
       this.activeScholarshipId = (applied ?? this.scholarships[0])?.id ?? '';
+    } catch (error) {
+      this.loadError = describeHttpError(error);
     } finally {
+      this.isLoading = false;
       this.changeDetector.markForCheck();
     }
   }

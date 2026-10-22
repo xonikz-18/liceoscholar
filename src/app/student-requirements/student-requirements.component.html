@@ -1,10 +1,10 @@
 <section class="requirements">
-  <div class="section-title">
+  <div class="section-title reveal-title">
     <span>Requirement Submission</span>
     <span class="info" aria-label="Requirement submission help"></span>
   </div>
 
-  <p class="intro" *ngIf="scholarshipType">
+  <p class="intro reveal-intro" *ngIf="scholarshipType">
     Upload the documents below for your
     <strong>{{ scholarshipType }}</strong> application. Your 2x2 picture and report card are
     checked automatically by AI, while the form is read by an administrator.
@@ -12,7 +12,7 @@
   </p>
 
   <!-- Shown the moment an AI-reviewed document is uploaded. -->
-  <div class="ai-working" *ngIf="isAiWorking()" role="status" aria-live="polite">
+  <div class="ai-working reveal-ai-working" *ngIf="isAiWorking()" role="status" aria-live="polite">
     <span class="ai-working-spinner" aria-hidden="true"></span>
 
     <div class="ai-working-text">
@@ -24,8 +24,8 @@
     </div>
   </div>
 
-  <div class="req-card">
-    <div class="req-item" *ngFor="let req of requirements; let i = index">
+  <div class="req-card reveal-card">
+    <div class="req-item" *ngFor="let req of requirements; let i = index; trackBy: trackRequirement">
       <div class="req-row">
         <span class="date">{{ req.date }}</span>
         <span class="separator" aria-hidden="true">•</span>
@@ -144,7 +144,7 @@
     </div>
   </div>
 
-  <p class="hint">
+  <p class="hint reveal-hint">
     Accepted formats: JPG, PNG, PDF, DOC, DOCX, XLS and XLSX. Replacing a file
     starts a fresh automatic review.
   </p>

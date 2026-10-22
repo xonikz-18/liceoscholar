@@ -6,7 +6,10 @@ $maroon: #850d16;
 
 /* --- Application summary --- */
 .summary {
-  margin-bottom: 46px;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 30px;
+  padding-top: min(5vw, 72px);
 }
 
 .summary-card {
@@ -16,9 +19,11 @@ $maroon: #850d16;
   justify-content: space-between;
   gap: 22px;
   padding: 22px 26px;
+  border: 4px solid #ffd12c;
   border-radius: 14px;
   background: $maroon;
   color: #fff;
+  box-shadow: 0 4px 10px rgba(63, 7, 13, .14);
 }
 
 /* Decision banner shown when the office posts a final verdict. */
@@ -168,12 +173,119 @@ $maroon: #850d16;
   width: 100%;
 }
 
+.dashboard-load-error {
+  padding: 18px;
+  border-radius: 10px;
+  background: #f1f1f1;
+  color: #333;
+  font-size: 14px;
+}
+
+.dashboard-load-error p {
+  margin: 0 0 12px;
+}
+
+.dashboard-load-error button {
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 6px;
+  background: $maroon;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dashboard-content {
+  position: relative;
+
+  &::before {
+    position: absolute;
+    top: -7vh;
+    left: 50%;
+    width: calc(100vw - clamp(260px, 28vw, 340px));
+    aspect-ratio: 1492 / 198;
+    transform: translateX(-50%);
+    content: "";
+    background: url("../assets/images/liceancoverphoto.png") center / 100% 100% no-repeat;
+  }
+
+  > .summary {
+    animation: dashboardFadeIn .35s ease-out both;
+  }
+
+  > .dashboard > .section-title {
+    animation: dashboardFadeIn .35s ease-out .12s both;
+  }
+
+  > .dashboard > .dash-card {
+    animation: dashboardFadeIn .35s ease-out .24s both;
+  }
+}
+
+.tier-tabs {
+  animation: dashboardFadeIn .35s ease-out .34s both;
+}
+
+.tier-detail > .tier-head {
+  animation: dashboardFadeIn .35s ease-out .42s both;
+}
+
+.tier-grid > .tier-block {
+  animation: dashboardFadeIn .35s ease-out both;
+}
+
+.tier-grid > .tier-block:nth-child(1) {
+  animation-delay: .48s;
+}
+
+.tier-grid > .tier-block:nth-child(2) {
+  animation-delay: .54s;
+}
+
+.tier-grid > .tier-block:nth-child(3) {
+  animation-delay: .6s;
+}
+
+.tier-grid > .tier-block:nth-child(4) {
+  animation-delay: .66s;
+}
+
+.tier-grid > .tier-block:nth-child(5) {
+  animation-delay: .72s;
+}
+
+.tier-grid > .tier-block:nth-child(6) {
+  animation-delay: .78s;
+}
+
+@keyframes dashboardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-content > .summary,
+  .dashboard-content > .dashboard > .section-title,
+  .dashboard-content > .dashboard > .dash-card,
+  .tier-tabs,
+  .tier-detail > .tier-head,
+  .tier-grid > .tier-block {
+    animation: none;
+  }
+}
+
 .section-title {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 20px;
-  color: #8b9199;
+  color: #000;
   font-size: 17px;
 }
 
@@ -196,7 +308,7 @@ $maroon: #850d16;
   width: 100%;
   padding: 16px;
   border-radius: 12px;
-  background: #f1f1f1;
+  background: #eeeeee;
 }
 
 .tier-tabs {
@@ -313,7 +425,7 @@ $maroon: #850d16;
 
 .tier-block h4 {
   margin: 0 0 7px;
-  color: #9aa0a6;
+  color: #000;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .07em;
@@ -405,6 +517,15 @@ $maroon: #850d16;
 
   .summary-card {
     padding: 18px;
+  }
+
+  .summary {
+    padding-top: max(36px, 5vw);
+  }
+
+  .dashboard-content::before {
+    top: -24px;
+    width: calc(100vw - 190px);
   }
 
   .summary-progress {

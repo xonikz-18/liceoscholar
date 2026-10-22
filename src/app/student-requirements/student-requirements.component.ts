@@ -120,6 +120,10 @@ export class StudentRequirementsComponent implements OnInit, OnDestroy {
     }
   }
 
+  trackRequirement(_index: number, requirement: Requirement): string {
+    return requirement.id;
+  }
+
   /**
    * True while the AI is still working on anything.
    *

@@ -1,3 +1,9 @@
+<div class="dashboard-load-error" *ngIf="!isLoading && loadError" role="alert">
+  <p>{{ loadError }}</p>
+  <button type="button" (click)="load()">Try again</button>
+</div>
+
+<div class="dashboard-content" *ngIf="!isLoading && !loadError">
 <section class="summary" *ngIf="user as account">
   <div class="summary-card">
     <div class="summary-main">
@@ -182,3 +188,4 @@
     </div>
   </ng-template>
 </section>
+</div>

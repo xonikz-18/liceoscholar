@@ -37,6 +37,15 @@ export class StudentProfileComponent implements OnInit {
   private originalScholarship = '';
 
   ngOnInit(): void {
+    this.scholarships = this.scholarshipApi.getCachedCatalogue()?.scholarships ?? [];
+
+    const cachedUser = this.auth.user();
+    if (cachedUser?.role === 'student') {
+      this.user = cachedUser;
+      this.originalScholarship = cachedUser.scholarshipType || '';
+      this.selectedScholarship = this.originalScholarship;
+    }
+
     void this.load();
   }
 
