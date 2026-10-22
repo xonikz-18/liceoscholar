@@ -36,9 +36,9 @@
             <input [value]="account.yearLevel || '—'" readonly>
           </div>
 
-          <div class="age-field">
-            <label>Age</label>
-            <input [value]="account.age !== null ? account.age : '—'" readonly>
+          <div class="dob-field">
+            <label>Date of Birth</label>
+            <input [value]="dobDisplay(account)" readonly>
           </div>
         </div>
 
@@ -115,7 +115,7 @@
   </div>
 
   <p class="account-note">
-    Name, course, year level, age and sex come from your sign up and can only be
+    Name, course, year level, date of birth and sex come from your sign up and can only be
     changed by the scholarship office. Contact the registrar if something is wrong.
   </p>
 </section>

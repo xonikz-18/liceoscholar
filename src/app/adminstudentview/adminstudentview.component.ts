@@ -4,8 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { describeHttpError, resolveFileUrl } from '../services/api.config';
 import { formatDateOfBirth } from '../services/date';
-import type { RequirementAnalysis, RequirementStatus } from '../services/models';
-import { isAiReviewable } from '../services/models';
+import type { RequirementAnalysis, RequirementStatus, StudentStatus } from '../services/models';
+import { DEFAULT_STUDENT_STATUS, STUDENT_STATUS_OPTIONS, isAiReviewable } from '../services/models';
 import { StudentService } from '../services/student.service';
 
 interface StudentDetails {
@@ -14,7 +14,8 @@ interface StudentDetails {
   email: string;
   course: string;
   yearLevel: string;
-  age: string;
+  /** `MM/DD/YYYY`, or a dash for accounts created before the field existed. */
+  dateOfBirth: string;
   sex: string;
   scholarshipType: string;
   /** Application status; new accounts start on "Pending". */
@@ -191,7 +192,7 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
         email: student.email || '—',
         course: student.course || '—',
         yearLevel: student.yearLevel || '—',
-        age: student.age !== null ? String(student.age) : '—',
+        dateOfBirth: formatDateOfBirth(student.dateOfBirth) || '—',
         sex: student.sex || 'N/A',
         scholarshipType: student.scholarshipType || '—',
         status: student.status ?? DEFAULT_STUDENT_STATUS,

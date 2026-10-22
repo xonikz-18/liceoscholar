@@ -6,6 +6,7 @@ import { ProfilePhotoEditorComponent } from '../profile-photo-editor/profile-pho
 import { AccountService } from '../services/account.service';
 import { describeHttpError } from '../services/api.config';
 import { AuthService } from '../services/auth.service';
+import { formatDateOfBirth } from '../services/date';
 import type { AuthUser, Scholarship } from '../services/models';
 import { DEFAULT_STUDENT_STATUS } from '../services/models';
 import { ScholarshipService } from '../services/scholarship.service';
@@ -58,6 +59,11 @@ export class StudentProfileComponent implements OnInit {
   /** Qualification summary for the scholarship currently applied for. */
   get appliedScholarship(): Scholarship | undefined {
     return this.scholarships.find((tier) => tier.name === this.user?.scholarshipType);
+  }
+
+  /** The application status, never blank: new accounts read as Pending. */
+  get status(): string {
+    return this.user?.status ?? DEFAULT_STUDENT_STATUS;
   }
 
   /** Birth date as MM/DD/YYYY, or a dash for accounts that predate the field. */

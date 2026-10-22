@@ -12,7 +12,7 @@
       <form *ngIf="!confirmationPending" [class.fade-in]="animateForm" (ngSubmit)="signup()">
         <div class="name-row">
           <div class="fullname-field">
-            <label for="fullName">Full Name</label>
+            <label for="fullName">Full Name <span class="required-mark" aria-hidden="true">*</span></label>
             <input
               id="fullName"
               type="text"
@@ -29,13 +29,14 @@
               id="signupSuffix"
               type="text"
               name="suffix"
+              placeholder="Jr."
               maxlength="20"
               [(ngModel)]="suffix"
             >
           </div>
         </div>
 
-        <label for="signupEmail">School E-mail</label>
+        <label for="signupEmail">School E-mail <span class="required-mark" aria-hidden="true">*</span></label>
         <input
           id="signupEmail"
           type="email"
@@ -48,16 +49,14 @@
 
         <div class="signup-details-row">
           <div class="dob-field">
-            <label for="signupDateOfBirth">Date of Birth</label>
+            <label for="signupDateOfBirth">Date of Birth <span class="required-mark" aria-hidden="true">*</span></label>
             <input
-              id="signupAge"
-              type="text"
-              inputmode="numeric"
-              maxlength="2"
-              pattern="[0-9]*"
-              name="age"
-              [ngModel]="age"
-              (ngModelChange)="onAgeInput($event)"
+              id="signupDateOfBirth"
+              type="date"
+              name="dateOfBirth"
+              placeholder="MM/DD/YYYY"
+              [max]="maxDateOfBirth"
+              [(ngModel)]="dateOfBirth"
               required
             >
           </div>
@@ -71,7 +70,7 @@
               [attr.aria-expanded]="activeSignupDropdown === 'yearLevel'"
               (click)="toggleSignupDropdown('yearLevel')"
             >
-              <span>{{ yearLevel }}</span>
+              <span [class.empty]="!yearLevel">{{ yearLevel || 'Select year level' }}</span>
               <span class="chevron" aria-hidden="true"></span>
             </button>
             <div class="filter-menu signup-dropdown-menu" *ngIf="activeSignupDropdown === 'yearLevel'">
@@ -88,7 +87,7 @@
               [attr.aria-expanded]="activeSignupDropdown === 'sex'"
               (click)="toggleSignupDropdown('sex')"
             >
-              <span>{{ sex }}</span>
+              <span [class.empty]="!sex">{{ sex || 'Select sex' }}</span>
               <span class="chevron" aria-hidden="true"></span>
             </button>
             <div class="filter-menu signup-dropdown-menu" *ngIf="activeSignupDropdown === 'sex'">
@@ -107,7 +106,7 @@
             [attr.aria-expanded]="activeSignupDropdown === 'course'"
             (click)="toggleSignupDropdown('course')"
           >
-            <span>{{ course }}</span>
+            <span [class.empty]="!course">{{ course || 'Select course' }}</span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
           <div class="filter-menu signup-dropdown-menu" *ngIf="activeSignupDropdown === 'course'">
@@ -125,7 +124,7 @@
             [attr.aria-expanded]="activeSignupDropdown === 'scholarshipType'"
             (click)="toggleSignupDropdown('scholarshipType')"
           >
-            <span>{{ scholarshipType }}</span>
+            <span [class.empty]="!scholarshipType">{{ scholarshipType || 'Select scholarship type' }}</span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
           <div class="filter-menu signup-dropdown-menu" *ngIf="activeSignupDropdown === 'scholarshipType'">
@@ -133,13 +132,13 @@
           </div>
         </div>
 
-        <label for="signupPassword">Password</label>
+        <label for="signupPassword">Password <span class="required-mark" aria-hidden="true">*</span></label>
         <input id="signupPassword" type="password" name="signupPassword" placeholder="At least 8 characters, 1 number, 1 capital" autocomplete="new-password" [(ngModel)]="signupPassword" required>
         <p class="password-hint" *ngIf="passwordRequirementsError" role="alert">
           Password must be at least 8 characters and include one number and one uppercase letter.
         </p>
 
-        <label for="confirmPassword">Confirm Password</label>
+        <label for="confirmPassword">Confirm Password <span class="required-mark" aria-hidden="true">*</span></label>
         <input id="confirmPassword" type="password" name="confirmPassword" placeholder="Re-enter your password" autocomplete="new-password" [(ngModel)]="confirmPassword" required>
 
         <button type="submit" class="submit">Sign Up</button>

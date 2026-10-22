@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 
 import { ProfilePhotoEditorComponent } from '../profile-photo-editor/profile-photo-editor.component';
 import { AuthService } from '../services/auth.service';
+import { formatDateOfBirth } from '../services/date';
 
 @Component({
   selector: 'app-adminprofile',
@@ -20,7 +21,7 @@ export class AdminprofileComponent {
   readonly admin = {
     name: this.user?.fullName || 'Administrator',
     suffix: this.user?.suffix || 'N/A',
-    age: this.user?.age != null ? String(this.user.age) : '—',
+    dateOfBirth: formatDateOfBirth(this.user?.dateOfBirth) || '—',
     sex: this.user?.sex || 'N/A'
   };
 

@@ -36,7 +36,8 @@ export interface AuthUser {
   email: string;
   fullName: string;
   emailVerified: boolean;
-  age: number | null;
+  /** `YYYY-MM-DD`, or null when the student has not given one yet. */
+  dateOfBirth: string | null;
   course: string;
   yearLevel: string;
   scholarshipType: string;
@@ -115,7 +116,8 @@ export interface SignupPayload {
   /** Optional: Jr., III, IV … */
   suffix?: string;
   email: string;
-  age: number;
+  /** `YYYY-MM-DD`. */
+  dateOfBirth: string;
   sex: string;
   course: string;
   yearLevel: string;

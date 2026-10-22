@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { describeHttpError } from '../services/api.config';
 import { isValidDateOfBirth, todayAsDateInput } from '../services/date';
+import { isSchoolEmail, SCHOOL_EMAIL_MESSAGE } from '../services/school-email';
 
 type SignupDropdown = 'yearLevel' | 'sex' | 'course' | 'scholarshipType';
 
@@ -24,7 +25,8 @@ export class SignupComponent {
   fullName = '';
   suffix = '';
   signupEmail = '';
-  age = '';
+  /** `YYYY-MM-DD` from the date picker. */
+  dateOfBirth = '';
   sex = '';
   course = '';
   yearLevel = '';
@@ -38,6 +40,8 @@ export class SignupComponent {
   passwordRequirementsError = false;
   switching = false;
   readonly animateForm = history.state?.fadeAuthForm === true;
+  /** Nothing after today can be a birth date. */
+  readonly maxDateOfBirth = todayAsDateInput();
   readonly courseOptions = [
     'School of Business, Management, and Accountancy',
     'College of Nursing',
@@ -65,11 +69,6 @@ export class SignupComponent {
 
   get passwordHasNumber(): boolean {
     return /\d/.test(this.signupPassword);
-  }
-
-  /** Keeps the age field to at most two digits and drops anything non-numeric. */
-  onAgeInput(value: string): void {
-    this.age = (value ?? '').replace(/\D/g, '').slice(0, 2);
   }
 
   get passwordHasUppercase(): boolean {
@@ -120,7 +119,7 @@ export class SignupComponent {
     if (
       !this.fullName.trim()
       || !this.signupEmail.trim()
-      || !this.age
+      || !this.dateOfBirth
       || !this.sex
       || !this.course
       || !this.yearLevel
@@ -132,9 +131,8 @@ export class SignupComponent {
       return;
     }
 
-    const age = Number(this.age);
-    if (!Number.isInteger(age) || age < 1 || age > 120) {
-      this.signupError = 'Enter a valid age between 1 and 120.';
+    if (!isValidDateOfBirth(this.dateOfBirth)) {
+      this.signupError = 'Enter a valid date of birth.';
       return;
     }
 
@@ -158,7 +156,7 @@ export class SignupComponent {
         fullName: this.fullName.trim(),
         suffix: this.suffix.trim() || undefined,
         email: this.signupEmail.trim().toLowerCase(),
-        age,
+        dateOfBirth: this.dateOfBirth,
         sex: this.sex,
         course: this.course,
         yearLevel: this.yearLevel,
@@ -199,7 +197,7 @@ export class SignupComponent {
     this.fullName = '';
     this.suffix = '';
     this.signupEmail = '';
-    this.age = '';
+    this.dateOfBirth = '';
     this.sex = '';
     this.course = '';
     this.yearLevel = '';

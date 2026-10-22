@@ -58,7 +58,7 @@ export class StudentService {
 
   async updateStudent(
     studentId: string,
-    patch: Partial<Pick<AuthUser, 'status' | 'fullName' | 'course' | 'yearLevel' | 'scholarshipType' | 'age' | 'sex' | 'suffix'>>
+    patch: Partial<Pick<AuthUser, 'status' | 'fullName' | 'course' | 'yearLevel' | 'scholarshipType' | 'dateOfBirth' | 'sex' | 'suffix'>>
   ): Promise<AuthUser> {
     const response = await lastValueFrom(
       this.http.patch<{ student: AuthUser }>(`${API_BASE_URL}/students/${studentId}`, patch)

@@ -213,7 +213,8 @@ input:focus {
 
 .signup-details-row {
   display: grid;
-  grid-template-columns: .7fr 1.2fr 1fr;
+  /* Date of birth needs the widest slot; year level and sex follow. */
+  grid-template-columns: 1.15fr 1fr .8fr;
   gap: 12px;
 }
 
@@ -364,8 +365,20 @@ input:focus {
   overflow-wrap: anywhere;
 }
 
-.signup-details-row .age-field input {
-  text-align: center;
+.signup-details-row .dob-field input {
+  padding-right: 12px;
+}
+
+/* Muted hint text shown while a dropdown has no selection yet. */
+.signup-dropdown-button > span.empty {
+  color: #b0b4b9;
+}
+
+/* Placeholder styling is browser specific, so set it explicitly. */
+input::placeholder,
+.signup-dropdown-button > span.empty {
+  color: #b0b4b9;
+  opacity: 1;
 }
 
 .submit {

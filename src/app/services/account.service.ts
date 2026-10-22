@@ -32,7 +32,7 @@ export class AccountService {
   }
 
   async updateMyProfile(
-    patch: Partial<Pick<AuthUser, 'fullName' | 'age' | 'sex' | 'suffix' | 'scholarshipType'>>
+    patch: Partial<Pick<AuthUser, 'fullName' | 'dateOfBirth' | 'sex' | 'suffix' | 'scholarshipType'>>
   ): Promise<AuthUser> {
     const response = await lastValueFrom(
       this.http.patch<UserResponse>(`${API_BASE_URL}/me`, patch)
