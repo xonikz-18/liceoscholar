@@ -167,6 +167,9 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
 
   private currentStudentId: string | null = null;
 
+  /** True when the student's profile photo is missing from the server. */
+  photoFailed = false;
+
   ngOnDestroy(): void {
     if (this.pollTimer) {
       clearTimeout(this.pollTimer);
@@ -186,6 +189,7 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
     try {
       const { student, requirements } = await this.studentsApi.getStudent(studentId);
 
+      this.photoFailed = false;
       this.student = {
         name: student.fullName,
         suffix: student.suffix || 'N/A',
@@ -351,14 +355,19 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
   /** Requirement whose uploaded file is being previewed, if any. */
   preview: StudentRequirement | null = null;
 
+  /** True when the previewed image could not be loaded (the file is missing). */
+  previewImageFailed = false;
+
   /** Opens the uploaded file for viewing. */
   openPreview(requirement: StudentRequirement): void {
     if (!requirement.fileUrl) return;
     this.preview = requirement;
+    this.previewImageFailed = false;
   }
 
   closePreview(): void {
     this.preview = null;
+    this.previewImageFailed = false;
   }
 
   /** True when the browser can render the file inline as an image. */

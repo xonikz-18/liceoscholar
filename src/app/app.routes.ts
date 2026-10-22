@@ -12,6 +12,8 @@ import { AdminprofileComponent } from './adminprofile/adminprofile.component';
 import { VerifyEmailComponent } from './verify-email/verify-email.component';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
+import { homeGuard } from './guards/home.guard';
+import { HomeComponent } from './home/home.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -42,6 +44,8 @@ export const routes: Routes = [
     component: LogoutComponent,
     outlet: 'modal'
   },
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: '**', redirectTo: 'login' }
+  // The bare site root keeps the session: signed-in accounts go straight to
+  // their portal instead of always being sent to the login page on refresh.
+  { path: '', pathMatch: 'full', component: HomeComponent, canActivate: [homeGuard] },
+  { path: '**', redirectTo: '' }
 ];

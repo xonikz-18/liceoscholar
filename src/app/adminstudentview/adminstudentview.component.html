@@ -114,10 +114,11 @@
 
         <div class="profile-grid">
           <img
-            *ngIf="student.photoUrl; else defaultStudentPhoto"
+            *ngIf="student.photoUrl && !photoFailed; else defaultStudentPhoto"
             class="student-photo"
             [src]="student.photoUrl"
             [alt]="student.name"
+            (error)="photoFailed = true"
           >
           <ng-template #defaultStudentPhoto>
             <div class="student-photo" role="img" aria-label="No profile picture uploaded"></div>
@@ -422,6 +423,7 @@
         </div>
         <div class="preview-head-actions">
           <a
+            *ngIf="!previewImageFailed"
             class="preview-open"
             [href]="preview.fileUrl"
             target="_blank"
@@ -438,14 +440,25 @@
 
       <div class="preview-body">
         <img
-          *ngIf="isImage(preview.mimeType); else notAnImage"
+          *ngIf="isImage(preview.mimeType) && !previewImageFailed; else notAnImage"
           [src]="preview.fileUrl"
           [alt]="preview.fileName"
+          (error)="previewImageFailed = true"
         >
         <ng-template #notAnImage>
           <div class="preview-unsupported">
-            <p>This file type cannot be shown here.</p>
-            <a [href]="preview.fileUrl" target="_blank" rel="noopener">Open {{ preview.fileName }}</a>
+            <p *ngIf="previewImageFailed; else unsupportedType">
+              This file is no longer available on the server. Ask the student to upload it again.
+            </p>
+            <ng-template #unsupportedType>
+              <p>This file type cannot be shown here.</p>
+            </ng-template>
+            <a
+              *ngIf="!previewImageFailed"
+              [href]="preview.fileUrl"
+              target="_blank"
+              rel="noopener"
+            >Open {{ preview.fileName }}</a>
           </div>
         </ng-template>
       </div>

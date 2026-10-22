@@ -1,5 +1,11 @@
 <div class="photo-control">
-  <img *ngIf="photoUrl; else defaultPhoto" class="profile-image" [src]="photoUrl" alt="Profile photo">
+  <img
+    *ngIf="photoUrl; else defaultPhoto"
+    class="profile-image"
+    [src]="photoUrl"
+    alt="Profile photo"
+    (error)="photoUrl = ''"
+  >
   <ng-template #defaultPhoto>
     <div class="default-photo" [ngClass]="defaultImage" role="img" aria-label="Default profile photo"></div>
   </ng-template>

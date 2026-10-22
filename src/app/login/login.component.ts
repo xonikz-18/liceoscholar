@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -14,7 +14,7 @@ import { isSchoolEmail, SCHOOL_EMAIL_MESSAGE } from '../services/school-email';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent implements OnDestroy {
+export class LoginComponent implements OnDestroy, OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly changeDetector = inject(ChangeDetectorRef);
@@ -66,6 +66,14 @@ export class LoginComponent implements OnDestroy {
     const minutes = Math.floor(total / 60);
     const seconds = total % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  async ngOnInit(): Promise<void> {
+    // A live session should never sit on the login form after a refresh.
+    const user = await this.auth.ensureUser();
+    if (user) {
+      await this.router.navigate([this.auth.landingRoute(user.role)]);
+    }
   }
 
   ngOnDestroy(): void {

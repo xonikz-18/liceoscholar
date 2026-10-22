@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 
 import { API_BASE_URL } from './api.config';
-import type { AuthUser, SignupPayload } from './models';
+import type { AuthUser, SignupPayload, UserRole } from './models';
 import {
   clearSession,
   readStoredUser,
@@ -35,6 +35,8 @@ export interface PasswordResetRequest {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly userState = signal<AuthUser | null>(readStoredUser());
+  /** In-flight session restore, so several guards share one API call. */
+  private restoreAttempt: Promise<AuthUser | null> | null = null;
 
   readonly user = this.userState.asReadonly();
   readonly isLoggedIn = computed(() => this.userState() !== null && readToken() !== null);
@@ -92,6 +94,55 @@ export class AuthService {
   updateUser(user: AuthUser): void {
     this.userState.set(user);
     writeUser(user);
+  }
+
+  /** Landing page for a signed-in account. */
+  landingRoute(role: UserRole): string {
+    return role === 'admin' ? '/adminstudentlist' : '/studentview';
+  }
+
+  /**
+   * Returns the signed-in account, restoring it from the API when a token is
+   * stored but the cached copy is missing.
+   *
+   * A page refresh keeps the cached copy, so this normally answers instantly
+   * without a request. The API is only consulted when storage is incomplete,
+   * which keeps a valid session from being mistaken for a signed-out one.
+   */
+  async ensureUser(): Promise<AuthUser | null> {
+    const cached = this.userState();
+    if (cached) {
+      return cached;
+    }
+
+    if (!readToken()) {
+      return null;
+    }
+
+    if (!this.restoreAttempt) {
+      this.restoreAttempt = lastValueFrom(
+        this.http.get<{ user: AuthUser }>(`${API_BASE_URL}/me`)
+      )
+        .then(({ user }) => {
+          this.userState.set(user);
+          writeUser(user);
+          return user;
+        })
+        .catch((error: unknown) => {
+          // A rejected token is useless; drop it. A network hiccup is not the
+          // same as being signed out, so keep the session in that case.
+          const status = (error as { status?: number }).status;
+          if (status === 401 || status === 403) {
+            this.logout();
+          }
+          return null;
+        })
+        .finally(() => {
+          this.restoreAttempt = null;
+        });
+    }
+
+    return this.restoreAttempt;
   }
 
   logout(): void {
