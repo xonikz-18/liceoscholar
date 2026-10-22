@@ -24,6 +24,13 @@ interface RequirementResponse {
   requirement: ApiRequirement;
 }
 
+/** Outcome of closing a semester. */
+export interface SemesterResetSummary {
+  status: string;
+  studentsReset: number;
+  requirementsCleared: number;
+}
+
 /** Administrator endpoints for browsing students and reviewing requirements. */
 @Injectable({ providedIn: 'root' })
 export class StudentService {
@@ -57,6 +64,23 @@ export class StudentService {
       this.http.patch<{ student: AuthUser }>(`${API_BASE_URL}/students/${studentId}`, patch)
     );
     return response.student;
+  }
+
+  /** Permanently removes a student and everything they submitted. */
+  async deleteStudent(studentId: string): Promise<void> {
+    await lastValueFrom(
+      this.http.delete<{ status: string }>(`${API_BASE_URL}/students/${studentId}`)
+    );
+  }
+
+  /**
+   * Closes the semester: clears every submission and puts every student back on
+   * "Pending". Accounts and profile details are kept.
+   */
+  async resetSemester(): Promise<SemesterResetSummary> {
+    return lastValueFrom(
+      this.http.post<SemesterResetSummary>(`${API_BASE_URL}/students/reset-semester`, {})
+    );
   }
 
   /** Approve or disapprove a single requirement. */

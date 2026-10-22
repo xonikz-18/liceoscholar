@@ -1,15 +1,16 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AuthService } from '../services/auth.service';
 
 /**
- * Confirmation shown before signing out.
+ * Confirmation dialog shown before signing out.
  *
- * The page behind the dialog is a lightweight mock rather than the real page:
- * it is hidden behind a dark overlay, and re-rendering it would repeat every
- * API call for no visible benefit.
+ * The dialog is rendered on top of the real page: the router keeps the current
+ * component in place, so whatever the user was looking at stays exactly as it
+ * was behind the dimmed overlay — same data, same scroll position, and no
+ * repeated API calls.
  */
 @Component({
   selector: 'app-logout',
@@ -21,34 +22,25 @@ import { AuthService } from '../services/auth.service';
 export class LogoutComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
 
-  readonly returnUrl = this.getReturnUrl();
-
-  readonly navItems: string[] =
-    this.auth.user()?.role === 'admin'
-      ? ['Student List', 'Admin Profile', 'Log Out']
-      : ['Dashboard', 'Requirement Submission', 'Student Profile', 'Log Out'];
+  /** True once the user confirms; the dialog stays up until the router moves on. */
+  signingOut = false;
 
   cancel(): void {
-    this.router.navigateByUrl(this.returnUrl);
+    this.location.back();
   }
 
   confirm(): void {
-    this.auth.logout();
-    this.router.navigate(['/login']);
-  }
+    this.signingOut = true;
 
-  /** Sends the user back to the page they came from. */
-  private getReturnUrl(): string {
-    const candidate: unknown = history.state?.returnUrl;
-    if (typeof candidate === 'string' && candidate.startsWith('/')) {
-      return candidate;
-    }
-
-    if (this.auth.user()?.role === 'admin') {
-      return '/adminstudentlist';
-    }
-
-    return '/studentview/dashboard';
+    // Drop the dialog before navigating: the destination is usually guarded and
+    // redirects, which would otherwise leave this overlay on the login screen.
+    void this.router
+      .navigate([{ outlets: { modal: null } }], { skipLocationChange: true })
+      .then(() => {
+        this.auth.logout();
+        return this.router.navigate(['/login']);
+      });
   }
 }

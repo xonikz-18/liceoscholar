@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, inject } from '
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { describeHttpError, resolveFileUrl } from '../services/api.config';
+import { formatDateOfBirth } from '../services/date';
 import type { RequirementAnalysis, RequirementStatus } from '../services/models';
 import { isAiReviewable } from '../services/models';
 import { StudentService } from '../services/student.service';
@@ -16,6 +17,8 @@ interface StudentDetails {
   age: string;
   sex: string;
   scholarshipType: string;
+  /** Application status; new accounts start on "Pending". */
+  status: StudentStatus;
   /** Empty when the student has not uploaded a picture. */
   photoUrl: string;
 }
@@ -53,8 +56,15 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
   student: StudentDetails | undefined;
   requirements: StudentRequirement[] = [];
 
-  readonly statusOptions: RequirementStatus[] = ['Pending', 'Qualified', 'Not Qualified'];
+  readonly statusOptions: RequirementStatus[] = ['Pending', 'Passed', 'Not Passed'];
   openStatusIndex: number | null = null;
+
+  /** The three application statuses an administrator can set. */
+  readonly studentStatusOptions = STUDENT_STATUS_OPTIONS;
+
+  /** Application status menu on the student's own card. */
+  applicationStatusOpen = false;
+  savingApplicationStatus = false;
 
   /** Requirement currently being reviewed by the AI, if any. */
   analyzingId: string | null = null;
@@ -126,9 +136,9 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
     return !requirement.aiReviewable;
   }
 
-  /** Turns a status into a CSS class: "Not Qualified" becomes "not-qualified". */
+  /** Turns a status into a CSS class: "Not Passed" becomes "not-passed". */
   statusClass(status: string | null | undefined): string {
-    return (status ?? 'Pending').toLowerCase().replace(/\s+/g, '-');
+    return (status ?? DEFAULT_STUDENT_STATUS).toLowerCase().replace(/\s+/g, '-');
   }
 
   /** CSS class for an AI verdict. */
@@ -184,6 +194,7 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
         age: student.age !== null ? String(student.age) : '—',
         sex: student.sex || 'N/A',
         scholarshipType: student.scholarshipType || '—',
+        status: student.status ?? DEFAULT_STUDENT_STATUS,
         photoUrl: resolveFileUrl(student.profilePhotoUrl)
       };
 
@@ -212,7 +223,80 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
   }
 
   toggleStatus(index: number): void {
+    // Nothing to review without a file, so the menu never opens.
+    if (!this.requirements[index]?.fileUrl) return;
+
     this.openStatusIndex = this.openStatusIndex === index ? null : index;
+    this.applicationStatusOpen = false;
+  }
+
+  /**
+   * True once every document has been reviewed.
+   *
+   * The application status can only be decided after all three requirements
+   * have been marked, so the control stays locked until then.
+   */
+  get requirementsReviewed(): boolean {
+    return (
+      this.requirements.length > 0 &&
+      this.requirements.every((requirement) => requirement.status !== 'Pending')
+    );
+  }
+
+  /** Documents still waiting for a decision, shown as the lock reason. */
+  get pendingRequirementCount(): number {
+    return this.requirements.filter((requirement) => requirement.status === 'Pending').length;
+  }
+
+  /** Explains why the application status cannot be changed yet. */
+  get applicationStatusLockedReason(): string {
+    if (this.requirementsReviewed) return '';
+
+    const pending = this.pendingRequirementCount;
+    return (
+      `Review the remaining ${pending} document${pending === 1 ? '' : 's'} first ` +
+      'before deciding the application status.'
+    );
+  }
+
+  toggleApplicationStatus(): void {
+    // The decision is locked until every document has been reviewed.
+    if (!this.requirementsReviewed) return;
+
+    this.applicationStatusOpen = !this.applicationStatusOpen;
+    this.openStatusIndex = null;
+  }
+
+  /** Saves the student's application status, restoring it if the call fails. */
+  async setApplicationStatus(status: StudentStatus): Promise<void> {
+    const student = this.student;
+    if (!student || !this.currentStudentId || this.savingApplicationStatus) return;
+
+    const previousStatus = student.status;
+    this.applicationStatusOpen = false;
+
+    if (status === previousStatus) return;
+
+    // "Pending" is always allowed; a final decision needs every document
+    // reviewed first.
+    if (status !== 'Pending' && !this.requirementsReviewed) {
+      alert(this.applicationStatusLockedReason);
+      return;
+    }
+
+    this.savingApplicationStatus = true;
+    this.student = { ...student, status };
+
+    try {
+      const updated = await this.studentsApi.updateStudent(this.currentStudentId, { status });
+      this.student = { ...student, status: updated.status ?? status };
+    } catch (error) {
+      this.student = { ...student, status: previousStatus };
+      alert(describeHttpError(error));
+    } finally {
+      this.savingApplicationStatus = false;
+      this.changeDetector.markForCheck();
+    }
   }
 
   /** Runs the AI reviewer over this requirement and stores its verdict. */
@@ -284,6 +368,13 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
   /** Saves the new status through the API, restoring it if the call fails. */
   async setStatus(index: number, status: RequirementStatus): Promise<void> {
     const requirement = this.requirements[index];
+
+    // A document has to exist before it can be judged.
+    if (!requirement.fileUrl) {
+      this.openStatusIndex = null;
+      return;
+    }
+
     const previousStatus = requirement.status;
     this.openStatusIndex = null;
 
@@ -302,11 +393,49 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
     this.router.navigate(['/adminstudentlist']);
   }
 
+  /** Delete-account confirmation state. */
+  confirmingDelete = false;
+  deletingAccount = false;
+  deleteError = '';
+
+  askDeleteAccount(): void {
+    this.deleteError = '';
+    this.confirmingDelete = true;
+  }
+
+  cancelDeleteAccount(): void {
+    if (this.deletingAccount) return;
+    this.confirmingDelete = false;
+    this.deleteError = '';
+  }
+
+  /** Removes the student, then returns to the list they came from. */
+  async confirmDeleteAccount(): Promise<void> {
+    const studentId = this.currentStudentId;
+    if (!studentId || this.deletingAccount) return;
+
+    this.deletingAccount = true;
+    this.deleteError = '';
+
+    try {
+      await this.studentsApi.deleteStudent(studentId);
+      this.confirmingDelete = false;
+      this.router.navigate(['/adminstudentlist']);
+    } catch (error) {
+      this.deleteError = describeHttpError(error);
+    } finally {
+      this.deletingAccount = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
   openAdminProfile(): void {
     this.router.navigate(['/adminprofile']);
   }
 
   logout(): void {
-    this.router.navigate(['/logout'], { state: { returnUrl: this.router.url } });
+    this.router.navigate([{ outlets: { modal: ['logout'] } }], {
+      state: { returnUrl: this.router.url }
+    });
   }
 }

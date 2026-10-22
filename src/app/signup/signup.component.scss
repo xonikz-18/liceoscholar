@@ -183,6 +183,12 @@ label {
   font-size: 11px;
 }
 
+/* Red asterisk marking a required field. */
+.required-mark {
+  color: #d32f2f;
+  font-weight: 700;
+}
+
 .password-hint {
   margin: -10px 0 14px 3px;
   color: #850d16;

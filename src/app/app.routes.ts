@@ -35,7 +35,13 @@ export const routes: Routes = [
     canActivate: [adminGuard]
   },
   { path: 'adminprofile', component: AdminprofileComponent, canActivate: [adminGuard] },
-  { path: 'logout', component: LogoutComponent },
+  {
+    // Child of the current page, so the page itself stays rendered behind the
+    // confirmation dialog instead of being replaced by an empty route.
+    path: 'logout',
+    component: LogoutComponent,
+    outlet: 'modal'
+  },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' }
 ];

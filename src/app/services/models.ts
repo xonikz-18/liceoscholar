@@ -4,7 +4,29 @@ export type UserRole = 'student' | 'admin';
 
 export type StudentStatus = 'Pending' | 'Qualified' | 'Not Qualified';
 
-export type RequirementStatus = 'Pending' | 'Qualified' | 'Not Qualified';
+/**
+ * Status every new account starts on.
+ *
+ * The backend already stores "Pending" at registration; the frontend falls back
+ * to the same value so a student is never shown a blank status, whatever the
+ * account looked like before.
+ */
+export const DEFAULT_STUDENT_STATUS: StudentStatus = 'Pending';
+
+/** The application statuses an administrator can pick from, in display order. */
+export const STUDENT_STATUS_OPTIONS: readonly StudentStatus[] = [
+  'Pending',
+  'Qualified',
+  'Not Qualified'
+];
+
+/**
+ * Status of one submitted document.
+ *
+ * Distinct from the application status above: a document is either still
+ * Pending or has been reviewed as Passed / Not Passed.
+ */
+export type RequirementStatus = 'Pending' | 'Passed' | 'Not Passed';
 
 /** An account as returned by /api/auth/* and /api/me. */
 export interface AuthUser {

@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 
 import { AuthService } from '../services/auth.service';
 import { describeHttpError } from '../services/api.config';
+import { isValidDateOfBirth, todayAsDateInput } from '../services/date';
 
 type SignupDropdown = 'yearLevel' | 'sex' | 'course' | 'scholarshipType';
 
@@ -134,6 +135,11 @@ export class SignupComponent {
     const age = Number(this.age);
     if (!Number.isInteger(age) || age < 1 || age > 120) {
       this.signupError = 'Enter a valid age between 1 and 120.';
+      return;
+    }
+
+    if (!isSchoolEmail(this.signupEmail)) {
+      this.signupError = SCHOOL_EMAIL_MESSAGE;
       return;
     }
 

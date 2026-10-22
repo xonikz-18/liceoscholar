@@ -1,94 +1,26 @@
 $maroon:#850d16;
 
+/*
+ * The dialog sits over the live page rather than a placeholder, so the host is
+ * fully transparent and lets the real content show through untouched.
+ */
 :host{
   position:fixed;
   inset:0;
   display:block;
   z-index:3000;
+  pointer-events:none;
 }
 
 .logout-screen{
-  position:relative;
-  width:100vw;
-  height:100vh;
-  overflow:hidden;
-}
-
-.mock-page{
   position:absolute;
   inset:0;
-  z-index:1;
-  display:flex;
-  font-family:Arial,Helvetica,sans-serif;
-}
-
-.mock-sidebar{
-  width:28%;
-  min-width:260px;
-  max-width:340px;
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-  padding:24px 0;
-  background:$maroon;
-}
-
-.mock-brand{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin-bottom:22px;
-  padding:0 16px;
-}
-
-.mock-logo{
-  width:60px;
-  height:60px;
-  flex-shrink:0;
-  background:url("../assets/images/liceologo.png") center/contain no-repeat;
-}
-
-.mock-brand-text{
-  color:#fff;
-  font-family:"Times New Roman",Times,serif;
-  font-size:14px;
-  line-height:1.25;
-}
-
-.mock-nav{
-  display:block;
-  margin:0 9px;
-  padding:14px 18px;
-  border-radius:6px;
-  color:#fff;
-  font-size:14px;
-}
-
-.mock-content{
-  flex:1;
-  min-width:0;
-  display:flex;
-  flex-direction:column;
-  gap:16px;
-  padding:7vh 5vw;
-  background:#fff;
-}
-
-.mock-block{
-  display:block;
-  height:120px;
-  border-radius:12px;
-  background:#f1f1f1;
-}
-
-.mock-block.wide{
-  height:200px;
+  pointer-events:auto;
 }
 
 .overlay{
   position:absolute;
   inset:0;
-  z-index:2;
   background:rgba(0,0,0,.58);
   animation:fadeIn .15s ease;
 }
@@ -140,6 +72,11 @@ $maroon:#850d16;
   cursor:pointer;
 }
 
+.actions button:disabled{
+  opacity:.65;
+  cursor:default;
+}
+
 .actions button svg{
   width:15px;
   height:15px;
@@ -156,11 +93,11 @@ $maroon:#850d16;
   color:#fff;
 }
 
-.cancel:hover{
+.cancel:hover:not(:disabled){
   background:#ddd;
 }
 
-.confirm:hover{
+.confirm:hover:not(:disabled){
   background:#720a12;
 }
 

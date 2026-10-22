@@ -11,7 +11,7 @@
 
       <form [class.fade-in]="animateForm" (ngSubmit)="login()">
         <div class="email-field">
-          <label for="loginEmail">School E-mail</label>
+          <label for="loginEmail">School E-mail <span class="required-mark" aria-hidden="true">*</span></label>
           <input
             id="loginEmail"
             type="text"
@@ -22,7 +22,7 @@
           >
         </div>
 
-        <label for="loginPassword">Password</label>
+        <label for="loginPassword">Password <span class="required-mark" aria-hidden="true">*</span></label>
         <div class="password-field">
           <input
             id="loginPassword"
@@ -76,7 +76,7 @@
               Enter your school email and we'll send a 4-digit code to reset your password.
             </p>
 
-            <label for="resetEmail">School E-mail</label>
+            <label for="resetEmail">School E-mail <span class="required-mark" aria-hidden="true">*</span></label>
             <input
               id="resetEmail"
               type="email"
@@ -101,7 +101,7 @@
               <span class="reset-expired" *ngIf="resetExpired">The code has expired — request a new one.</span>
             </p>
 
-            <label for="resetCode">4-digit code</label>
+            <label for="resetCode">4-digit code <span class="required-mark" aria-hidden="true">*</span></label>
             <input
               id="resetCode"
               class="reset-code-input"
@@ -115,7 +115,7 @@
               placeholder="0000"
             >
 
-            <label for="resetNewPassword">New password</label>
+            <label for="resetNewPassword">New password <span class="required-mark" aria-hidden="true">*</span></label>
             <input
               id="resetNewPassword"
               type="password"
@@ -125,7 +125,7 @@
               [disabled]="resetSubmitting"
             >
 
-            <label for="resetConfirmPassword">Confirm new password</label>
+            <label for="resetConfirmPassword">Confirm new password <span class="required-mark" aria-hidden="true">*</span></label>
             <input
               id="resetConfirmPassword"
               type="password"

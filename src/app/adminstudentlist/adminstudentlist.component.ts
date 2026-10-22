@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { describeHttpError } from '../services/api.config';
+import { DEFAULT_STUDENT_STATUS, STUDENT_STATUS_OPTIONS } from '../services/models';
 import type { StudentStatus } from '../services/models';
 import { StudentService } from '../services/student.service';
 
@@ -72,7 +73,7 @@ export class AdminstudentlistComponent implements OnInit {
       'College of Aviation'
     ],
     yearLevel: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
-    status: ['Pending', 'Qualified', 'Not Qualified']
+    status: [...STUDENT_STATUS_OPTIONS]
   };
 
   students: Student[] = [];
@@ -91,7 +92,7 @@ export class AdminstudentlistComponent implements OnInit {
         course: student.course,
         yearLevel: student.yearLevel,
         scholarshipType: student.scholarshipType,
-        status: student.status ?? 'Pending'
+        status: student.status ?? DEFAULT_STUDENT_STATUS
       }));
     } catch (error) {
       alert(describeHttpError(error));
@@ -132,9 +133,9 @@ export class AdminstudentlistComponent implements OnInit {
     this.activeFilter = this.activeFilter === key ? null : key;
   }
 
-  /** Turns a status into a CSS class: "Not Qualified" becomes "not-qualified". */
+  /** The dot next to each student. Falls back to the default status. */
   statusClass(status: string | null | undefined): string {
-    return (status ?? 'Pending').toLowerCase().replace(/\s+/g, '-');
+    return (status ?? DEFAULT_STUDENT_STATUS).toLowerCase().replace(/\s+/g, '-');
   }
 
   chooseFilter(key: FilterKey, value: string): void {
@@ -146,11 +147,48 @@ export class AdminstudentlistComponent implements OnInit {
     this.router.navigate(['/adminstudentview', student.id]);
   }
 
+  /** End-of-semester reset state. */
+  confirmingReset = false;
+  resettingSemester = false;
+  resetError = '';
+
+  askResetSemester(): void {
+    this.resetError = '';
+    this.confirmingReset = true;
+  }
+
+  cancelResetSemester(): void {
+    if (this.resettingSemester) return;
+    this.confirmingReset = false;
+    this.resetError = '';
+  }
+
+  /** Clears every submission and returns all students to "Pending". */
+  async confirmResetSemester(): Promise<void> {
+    if (this.resettingSemester) return;
+
+    this.resettingSemester = true;
+    this.resetError = '';
+
+    try {
+      await this.studentsApi.resetSemester();
+      this.confirmingReset = false;
+      await this.loadStudents();
+    } catch (error) {
+      this.resetError = describeHttpError(error);
+    } finally {
+      this.resettingSemester = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
   openAdminProfile(): void {
     this.router.navigate(['/adminprofile']);
   }
 
   logout(): void {
-    this.router.navigate(['/logout'], { state: { returnUrl: this.router.url } });
+    this.router.navigate([{ outlets: { modal: ['logout'] } }], {
+      state: { returnUrl: this.router.url }
+    });
   }
 }

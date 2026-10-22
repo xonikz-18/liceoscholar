@@ -65,6 +65,9 @@
     <div class="scholar-current" *ngIf="!editingScholarship">
       <div>
         <p class="scholar-name">{{ account.scholarshipType || 'No scholarship selected' }}</p>
+        <p class="scholar-status">
+          Status: <strong>{{ status }}</strong>
+        </p>
         <p class="scholar-qual" *ngIf="appliedScholarship as applied">
           Qualification: <strong>{{ applied.qualification }}</strong>
           &middot; {{ applied.duration }}

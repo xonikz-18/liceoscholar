@@ -99,7 +99,6 @@
             <span>{{ filterLabels[key] }}</span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
-
           <div class="filter-menu" *ngIf="activeFilter === key">
             <button
               type="button"
@@ -120,6 +119,31 @@
             </button>
           </div>
         </div>
+
+        <button
+          class="reset-semester"
+          type="button"
+          [disabled]="resettingSemester || students.length === 0"
+          (click)="askResetSemester()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/>
+            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/>
+          </svg>
+          <span>{{ resettingSemester ? 'Resetting…' : 'Reset Semester' }}</span>
+        </button>
       </div>
 
       <div class="table-card">
@@ -133,7 +157,12 @@
 
         <div class="student-row" *ngFor="let student of filteredStudents">
           <span class="status-cell">
-            <span class="status-dot" [ngClass]="statusClass(student.status)" [attr.aria-label]="student.status"></span>
+            <span
+              class="status-dot"
+              [ngClass]="statusClass(student.status)"
+              [attr.aria-label]="student.status"
+              [attr.title]="student.status"
+            ></span>
           </span>
           <button class="student-name" type="button" (click)="openStudent(student)">
             {{ student.name }}
@@ -147,4 +176,53 @@
       </div>
     </section>
   </main>
+
+  <!-- End-of-semester confirmation -->
+  <div
+    class="reset-overlay"
+    *ngIf="confirmingReset"
+    (click)="cancelResetSemester()"
+    (keydown.escape)="cancelResetSemester()"
+  >
+    <section
+      class="reset-dialog"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="resetTitle"
+      aria-describedby="resetBody"
+      (click)="$event.stopPropagation()"
+    >
+      <h3 id="resetTitle">Reset all student statuses?</h3>
+      <p id="resetBody">
+        Every submitted document will be cleared and all
+        <strong>{{ students.length }}</strong> students will go back to
+        <strong>Pending</strong>, ready for the new semester.
+      </p>
+      <p class="reset-note">
+        Accounts, profile details and passwords are kept. Uploaded files are
+        deleted, so this cannot be undone.
+      </p>
+
+      <p class="reset-error" *ngIf="resetError">{{ resetError }}</p>
+
+      <div class="reset-actions">
+        <button
+          type="button"
+          class="reset-cancel"
+          [disabled]="resettingSemester"
+          (click)="cancelResetSemester()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="reset-confirm"
+          [disabled]="resettingSemester"
+          (click)="confirmResetSemester()"
+        >
+          {{ resettingSemester ? 'Resetting…' : 'Reset Semester' }}
+        </button>
+      </div>
+    </section>
+  </div>
 </div>

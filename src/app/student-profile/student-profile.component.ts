@@ -7,6 +7,7 @@ import { AccountService } from '../services/account.service';
 import { describeHttpError } from '../services/api.config';
 import { AuthService } from '../services/auth.service';
 import type { AuthUser, Scholarship } from '../services/models';
+import { DEFAULT_STUDENT_STATUS } from '../services/models';
 import { ScholarshipService } from '../services/scholarship.service';
 
 /** Shows everything the student entered at sign up, and allows editing the scholarship type. */
@@ -57,6 +58,11 @@ export class StudentProfileComponent implements OnInit {
   /** Qualification summary for the scholarship currently applied for. */
   get appliedScholarship(): Scholarship | undefined {
     return this.scholarships.find((tier) => tier.name === this.user?.scholarshipType);
+  }
+
+  /** Birth date as MM/DD/YYYY, or a dash for accounts that predate the field. */
+  dobDisplay(account: AuthUser): string {
+    return formatDateOfBirth(account.dateOfBirth) || '—';
   }
 
   startEditScholarship(): void {

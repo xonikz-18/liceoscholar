@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 
 import { AuthService } from '../services/auth.service';
 import { describeHttpError, isEmailUnconfirmedError } from '../services/api.config';
+import { isSchoolEmail, SCHOOL_EMAIL_MESSAGE } from '../services/school-email';
 
 @Component({
   selector: 'app-login',
@@ -95,6 +96,14 @@ export class LoginComponent implements OnDestroy {
       return;
     }
 
+    const attemptedIdentifier = attemptedEmail.trim().toLowerCase();
+    // Admins sign in with a plain username, so only an address has to pass the
+    // school-domain check.
+    if (attemptedIdentifier.includes('@') && !isSchoolEmail(attemptedIdentifier)) {
+      this.loginError = SCHOOL_EMAIL_MESSAGE;
+      return;
+    }
+
     this.loginError = '';
 
     try {
@@ -133,11 +142,11 @@ export class LoginComponent implements OnDestroy {
 
   // --- Forgot password --------------------------------------------------
 
-  /** Opens the reset dialog, prefilling the email if it looks valid. */
+  /** Opens the reset dialog, prefilling the email if it is a school address. */
   openForgotPassword(): void {
     const typed = this.loginEmail.trim().toLowerCase();
     this.resetStep = 'email';
-    this.resetEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(typed) ? typed : '';
+    this.resetEmail = isSchoolEmail(typed) ? typed : '';
     this.resetCode = '';
     this.resetNewPassword = '';
     this.resetConfirmPassword = '';
@@ -161,6 +170,10 @@ export class LoginComponent implements OnDestroy {
     const email = this.resetEmail.trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       this.resetError = 'Enter a valid school email.';
+      return;
+    }
+    if (!isSchoolEmail(email)) {
+      this.resetError = SCHOOL_EMAIL_MESSAGE;
       return;
     }
 

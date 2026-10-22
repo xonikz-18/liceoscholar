@@ -21,6 +21,77 @@ $maroon: #850d16;
   color: #fff;
 }
 
+/* Decision banner shown when the office posts a final verdict. */
+.decision-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 18px 24px;
+  border-radius: 12px;
+  border: 1px solid #d9d9d9;
+  background: #fafafa;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .04);
+}
+
+.decision-banner.qualified {
+  border-color: rgba(104, 206, 105, .6);
+  background: linear-gradient(90deg, rgba(104, 206, 105, .12) 0%, #fff 70%);
+}
+
+.decision-banner.not-qualified {
+  border-color: rgba(179, 38, 53, .45);
+  background: linear-gradient(90deg, rgba(179, 38, 53, .1) 0%, #fff 70%);
+}
+
+.decision-banner-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+}
+
+.decision-banner.qualified .decision-banner-icon {
+  background: rgba(104, 206, 105, .2);
+  color: #2f9c32;
+}
+
+.decision-banner.not-qualified .decision-banner-icon {
+  background: rgba(179, 38, 53, .16);
+  color: $maroon;
+}
+
+.decision-banner-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.decision-banner-text {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.decision-banner-text h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #1f2933;
+}
+
+.decision-banner-text p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.decision-banner-email {
+  margin: 0;
+  font-size: 11.5px;
+  color: #6b7280;
+}
+
 .summary-label {
   margin: 0 0 5px;
   font-size: 10px;

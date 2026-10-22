@@ -13,7 +13,15 @@
         <div class="name-row">
           <div class="fullname-field">
             <label for="fullName">Full Name</label>
-            <input id="fullName" type="text" name="fullName" [(ngModel)]="fullName" required>
+            <input
+              id="fullName"
+              type="text"
+              name="fullName"
+              placeholder="Juan Dela Cruz Jr."
+              autocomplete="name"
+              [(ngModel)]="fullName"
+              required
+            >
           </div>
           <div class="suffix-field">
             <label for="signupSuffix">Suffix</label>
@@ -28,11 +36,19 @@
         </div>
 
         <label for="signupEmail">School E-mail</label>
-        <input id="signupEmail" type="email" name="signupEmail" [(ngModel)]="signupEmail" required>
+        <input
+          id="signupEmail"
+          type="email"
+          name="signupEmail"
+          placeholder="juan.dela.cruz@liceo.edu.ph"
+          autocomplete="email"
+          [(ngModel)]="signupEmail"
+          required
+        >
 
         <div class="signup-details-row">
-          <div class="age-field">
-            <label for="signupAge">Age</label>
+          <div class="dob-field">
+            <label for="signupDateOfBirth">Date of Birth</label>
             <input
               id="signupAge"
               type="text"
@@ -46,7 +62,7 @@
             >
           </div>
           <div class="signup-select-field">
-            <label for="signupYearLevel">Year Level</label>
+            <label for="signupYearLevel">Year Level <span class="required-mark" aria-hidden="true">*</span></label>
             <button
               id="signupYearLevel"
               class="filter-button signup-dropdown-button"
@@ -63,7 +79,7 @@
             </div>
           </div>
           <div class="signup-select-field">
-            <label for="signupSex">Sex</label>
+            <label for="signupSex">Sex <span class="required-mark" aria-hidden="true">*</span></label>
             <button
               id="signupSex"
               class="filter-button signup-dropdown-button"
@@ -82,7 +98,7 @@
         </div>
 
         <div class="signup-select-field course-field">
-          <label for="signupCourse">Course</label>
+          <label for="signupCourse">Course <span class="required-mark" aria-hidden="true">*</span></label>
           <button
             id="signupCourse"
             class="filter-button signup-dropdown-button"
@@ -100,7 +116,7 @@
         </div>
 
         <div class="signup-select-field scholarship-field">
-          <label for="signupScholarship">Scholarship Type</label>
+          <label for="signupScholarship">Scholarship Type <span class="required-mark" aria-hidden="true">*</span></label>
           <button
             id="signupScholarship"
             class="filter-button signup-dropdown-button"
@@ -118,13 +134,13 @@
         </div>
 
         <label for="signupPassword">Password</label>
-        <input id="signupPassword" type="password" name="signupPassword" [(ngModel)]="signupPassword" required>
+        <input id="signupPassword" type="password" name="signupPassword" placeholder="At least 8 characters, 1 number, 1 capital" autocomplete="new-password" [(ngModel)]="signupPassword" required>
         <p class="password-hint" *ngIf="passwordRequirementsError" role="alert">
           Password must be at least 8 characters and include one number and one uppercase letter.
         </p>
 
         <label for="confirmPassword">Confirm Password</label>
-        <input id="confirmPassword" type="password" name="confirmPassword" [(ngModel)]="confirmPassword" required>
+        <input id="confirmPassword" type="password" name="confirmPassword" placeholder="Re-enter your password" autocomplete="new-password" [(ngModel)]="confirmPassword" required>
 
         <button type="submit" class="submit">Sign Up</button>
         <p class="signup-error" *ngIf="signupError" role="alert">{{ signupError }}</p>

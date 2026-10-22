@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { AccountService } from '../services/account.service';
+import { DEFAULT_STUDENT_STATUS } from '../services/models';
 import type { ApiRequirement, AuthUser, Scholarship } from '../services/models';
 import { ScholarshipService } from '../services/scholarship.service';
 
@@ -25,6 +26,10 @@ export class StudentDashboardComponent implements OnInit {
   requiredDocuments: string[] = [];
   activeScholarshipId = '';
 
+  /** The application status, never blank: new accounts read as Pending. */
+  get status(): string {
+    return this.user?.status ?? DEFAULT_STUDENT_STATUS;
+  }
   ngOnInit(): void {
     void this.load();
   }
@@ -48,10 +53,26 @@ export class StudentDashboardComponent implements OnInit {
     }
   }
 
+  /** True when the scholarship office has made a final decision on the application. */
+  get decisionMade(): boolean {
+    return this.status === 'Qualified' || this.status === 'Not Qualified';
+  }
+
+  /** Friendly label for the decision banner. */
+  get decisionLabel(): string {
+    return this.status === 'Qualified' ? 'Congratulations!' : 'Application Update';
+  }
+
+  /** Message shown when a final decision has been posted. */
+  get decisionMessage(): string {
+    return this.status === 'Qualified'
+      ? 'The Scholarship Office has marked your application as Qualified. Check your email for details.'
+      : 'The Scholarship Office has marked your application as Not Qualified.';
+  }
+
   isApplied(tier: Scholarship): boolean {
     return tier.name === this.user?.scholarshipType;
   }
-
   selectScholarship(tier: Scholarship): void {
     this.activeScholarshipId = tier.id;
   }
@@ -63,7 +84,7 @@ export class StudentDashboardComponent implements OnInit {
     );
   }
 
-  /** Submission status for a document, e.g. "Qualified". */
+  /** Submission status for a document, e.g. "Passed". */
   statusFor(description: string): string {
     const match = this.requirements.find((requirement) => requirement.description === description);
     return match?.fileName ? match.status : 'Not submitted';

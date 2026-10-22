@@ -1,28 +1,20 @@
 <div class="logout-screen">
-  <div class="mock-page" aria-hidden="true">
-    <aside class="mock-sidebar">
-      <div class="mock-brand">
-        <span class="mock-logo"></span>
-        <span class="mock-brand-text">Liceo de Cagayan University</span>
-      </div>
-      <span class="mock-nav" *ngFor="let item of navItems">{{ item }}</span>
-    </aside>
-    <div class="mock-content">
-      <span class="mock-block wide"></span>
-      <span class="mock-block"></span>
-      <span class="mock-block"></span>
-    </div>
-  </div>
+  <div class="overlay" aria-hidden="true"></div>
 
-  <div class="overlay"></div>
-
-  <div class="logout-modal">
-    <h2>Log Out</h2>
-    <p>Are you sure you want to log out of your account?</p>
+  <div
+    class="logout-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="logout-title"
+    aria-describedby="logout-question"
+    [attr.aria-busy]="signingOut"
+  >
+    <h2 id="logout-title">Log Out</h2>
+    <p id="logout-question">Are you sure you want to log out of your account?</p>
 
     <div class="actions">
-      <button type="button" class="cancel" (click)="cancel()">Cancel</button>
-      <button type="button" class="confirm" (click)="confirm()">
+      <button type="button" class="cancel" (click)="cancel()" [disabled]="signingOut">Cancel</button>
+      <button type="button" class="confirm" (click)="confirm()" [disabled]="signingOut">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"

@@ -4,7 +4,7 @@
       <p class="summary-label">My Application</p>
       <h2>{{ account.scholarshipType || 'No scholarship selected' }}</h2>
       <p class="summary-meta">
-        {{ account.course || '—' }} &middot; {{ account.yearLevel || '—' }} &middot; Status: {{ account.status || 'Pending' }}
+        {{ account.course || '—' }} &middot; {{ account.yearLevel || '—' }} &middot; Status: {{ status }}
       </p>
     </div>
 
@@ -31,6 +31,27 @@
         </svg>
       </a>
     </div>
+  </div>
+
+  <!-- Prominent banner shown the moment the Scholarship Office makes a final decision. -->
+  <div class="decision-banner" *ngIf="decisionMade" [class.qualified]="status === 'Qualified'" [class.not-qualified]="status === 'Not Qualified'">
+    <div class="decision-banner-icon" aria-hidden="true">
+      <svg *ngIf="status === 'Qualified'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+        <path d="M5 12l5 5l10 -10"/>
+      </svg>
+      <svg *ngIf="status === 'Not Qualified'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 8v4"/>
+        <path d="M12 16h.01"/>
+      </svg>
+    </div>
+    <div class="decision-banner-text">
+      <h3>{{ decisionLabel }}</h3>
+      <p>{{ decisionMessage }}</p>
+    </div>
+    <p class="decision-banner-email">A notification has been sent to your school email.</p>
   </div>
 </section>
 

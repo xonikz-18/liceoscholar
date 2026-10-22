@@ -83,6 +83,33 @@
             <span aria-hidden="true"></span>
           </button>
           <span>Personal Information</span>
+          <button
+            class="delete-account"
+            type="button"
+            [disabled]="deletingAccount"
+            (click)="askDeleteAccount()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M4 7l16 0"/>
+              <path d="M10 11l0 6"/>
+              <path d="M14 11l0 6"/>
+              <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/>
+              <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/>
+            </svg>
+            <span>Delete Account</span>
+          </button>
         </div>
 
         <div class="profile-grid">
@@ -131,6 +158,40 @@
               <div class="scholar-field">
                 <label>Scholarship Type</label>
                 <input [value]="student.scholarshipType" readonly>
+              </div>
+              <div class="appstatus-field">
+                <label>Application Status</label>
+                <div class="appstatus-control">
+                  <button
+                    class="status-button"
+                    [ngClass]="statusClass(student.status)"
+                    type="button"
+                    aria-haspopup="listbox"
+                    [attr.aria-expanded]="applicationStatusOpen"
+                    [disabled]="savingApplicationStatus || !requirementsReviewed"
+                    [attr.title]="applicationStatusLockedReason"
+                    (click)="toggleApplicationStatus()"
+                  >
+                    <span>{{ student.status }}</span>
+                    <span class="chevron" aria-hidden="true"></span>
+                  </button>
+
+                  <div class="status-menu" role="listbox" *ngIf="applicationStatusOpen">
+                    <button
+                      type="button"
+                      role="option"
+                      *ngFor="let option of studentStatusOptions"
+                      [attr.aria-selected]="option === student.status"
+                      (click)="setApplicationStatus(option)"
+                    >
+                      {{ option }}
+                    </button>
+                  </div>
+                </div>
+
+                <p class="appstatus-hint" *ngIf="!requirementsReviewed">
+                  {{ applicationStatusLockedReason }}
+                </p>
               </div>
             </div>
 
@@ -192,7 +253,9 @@
                 class="status-button"
                 [ngClass]="statusClass(requirement.status)"
                 type="button"
+                [disabled]="!requirement.fileUrl"
                 [attr.aria-expanded]="openStatusIndex === i"
+                [attr.title]="requirement.fileUrl ? '' : 'No file uploaded yet — the status cannot be changed.'"
                 (click)="toggleStatus(i)"
               >
                 <span>{{ requirement.status }}</span>
@@ -293,6 +356,50 @@
       </section>
     </div>
   </main>
+
+  <!-- Delete-account confirmation -->
+  <div
+    class="preview-overlay"
+    *ngIf="confirmingDelete"
+    (click)="cancelDeleteAccount()"
+    (keydown.escape)="cancelDeleteAccount()"
+  >
+    <section
+      class="confirm-dialog"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="deleteAccountTitle"
+      aria-describedby="deleteAccountBody"
+      (click)="$event.stopPropagation()"
+    >
+      <h3 id="deleteAccountTitle">Delete this account?</h3>
+      <p id="deleteAccountBody">
+        <strong>{{ student?.name }}</strong> and every document they submitted will be
+        permanently removed. This cannot be undone.
+      </p>
+
+      <p class="confirm-error" *ngIf="deleteError">{{ deleteError }}</p>
+
+      <div class="confirm-actions">
+        <button
+          type="button"
+          class="confirm-cancel"
+          [disabled]="deletingAccount"
+          (click)="cancelDeleteAccount()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="confirm-delete"
+          [disabled]="deletingAccount"
+          (click)="confirmDeleteAccount()"
+        >
+          {{ deletingAccount ? 'Deleting…' : 'Delete Account' }}
+        </button>
+      </div>
+    </section>
+  </div>
 
   <!-- Uploaded file preview -->
   <div

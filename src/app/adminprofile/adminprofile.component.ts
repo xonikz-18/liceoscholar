@@ -29,6 +29,8 @@ export class AdminprofileComponent {
   }
 
   logout(): void {
-    this.router.navigate(['/logout'], { state: { returnUrl: this.router.url } });
+    this.router.navigate([{ outlets: { modal: ['logout'] } }], {
+      state: { returnUrl: this.router.url }
+    });
   }
 }

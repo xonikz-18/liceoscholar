@@ -35,6 +35,8 @@ export class StudentShellComponent {
   ];
 
   logout(): void {
-    this.router.navigate(['/logout'], { state: { returnUrl: '/studentview/dashboard' } });
+    this.router.navigate([{ outlets: { modal: ['logout'] } }], {
+      state: { returnUrl: '/studentview/dashboard' }
+    });
   }
 }

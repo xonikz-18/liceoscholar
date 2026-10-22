@@ -223,6 +223,149 @@ $gray: #d9d9d9;
   margin: 18px 2px 20px;
 }
 
+/* Pushes the semester reset to the right end of the filter row. */
+.reset-semester {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  margin-left: auto;
+  padding: 0 18px;
+  border: 1px solid #e3bcbc;
+  border-radius: 8px;
+  background: #fdf3f3;
+  color: #b32635;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease;
+}
+
+.reset-semester svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.reset-semester:hover:not(:disabled),
+.reset-semester:focus-visible {
+  border-color: #b32635;
+  background: #f7e2e2;
+}
+
+.reset-semester:disabled {
+  opacity: .55;
+  cursor: default;
+}
+
+/* --- End-of-semester confirmation --- */
+.reset-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 6000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 8, 8, .72);
+}
+
+.reset-dialog {
+  width: min(100%, 440px);
+  padding: 30px 32px 26px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .4);
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  animation: resetPop .18s ease-out both;
+}
+
+.reset-dialog h3 {
+  margin: 0 0 10px;
+  color: $maroon;
+  font-size: 19px;
+}
+
+.reset-dialog p {
+  margin: 0 0 14px;
+  color: #8a8a8a;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.reset-dialog p strong {
+  color: #444;
+}
+
+.reset-note {
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: #f6f6f6;
+  font-size: 11.5px !important;
+}
+
+.reset-error {
+  margin: 0 0 16px !important;
+  padding: 9px 12px;
+  border-radius: 7px;
+  background: #fdecec;
+  color: #b32635 !important;
+  font-size: 11.5px !important;
+}
+
+.reset-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.reset-actions button {
+  width: 50%;
+  height: 38px;
+  border: 0;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reset-actions button:disabled {
+  opacity: .65;
+  cursor: default;
+}
+
+.reset-cancel {
+  background: #eee;
+  color: #777;
+}
+
+.reset-cancel:hover:not(:disabled) {
+  background: #ddd;
+}
+
+.reset-confirm {
+  background: #b32635;
+  color: #fff;
+}
+
+.reset-confirm:hover:not(:disabled) {
+  background: #971d2b;
+}
+
+@keyframes resetPop {
+  from {
+    opacity: 0;
+    transform: scale(.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .filter {
   position: relative;
 }
