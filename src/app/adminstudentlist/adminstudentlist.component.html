@@ -94,16 +94,17 @@
             class="filter-button"
             type="button"
             [attr.aria-expanded]="activeFilter === key"
+            [attr.title]="filterLabel(key)"
             (click)="toggleFilter(key)"
           >
-            <span>{{ filterLabels[key] }}</span>
+            <span class="filter-label">{{ filterLabel(key) }}</span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
           <div class="filter-menu" *ngIf="activeFilter === key">
             <button
               type="button"
-              [class.selected]="selectedFilters[key] === 'All'"
-              [attr.aria-pressed]="selectedFilters[key] === 'All'"
+              [class.selected]="!selectedFilters[key]"
+              [attr.aria-pressed]="!selectedFilters[key]"
               (click)="chooseFilter(key, 'All')"
             >
               All

@@ -138,8 +138,15 @@ export class AdminstudentlistComponent implements OnInit {
     return (status ?? DEFAULT_STUDENT_STATUS).toLowerCase().replace(/\s+/g, '-');
   }
 
+  /** The button shows the active choice, or its name when nothing is picked. */
+  filterLabel(key: FilterKey): string {
+    return this.selectedFilters[key] ?? this.filterLabels[key];
+  }
+
   chooseFilter(key: FilterKey, value: string): void {
-    this.selectedFilters[key] = this.selectedFilters[key] === value ? null : value;
+    // "All" clears the filter; clicking the active choice again does the same.
+    this.selectedFilters[key] =
+      value === 'All' || this.selectedFilters[key] === value ? null : value;
     this.activeFilter = null;
   }
 
