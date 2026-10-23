@@ -266,7 +266,7 @@ $gray: #d9d9d9;
   margin-bottom: 15px;
 }
 
-.row > div {
+.row>div {
   min-width: 0;
 }
 
@@ -437,7 +437,7 @@ label {
 }
 
 /* Keeps the label from touching the arrow when the pill is narrow. */
-.status-button > span:first-child {
+.status-button>span:first-child {
   min-width: 0;
 }
 
@@ -913,6 +913,7 @@ label {
     opacity: 0;
     transform: translateY(12px) scale(.98);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -1014,7 +1015,7 @@ label {
   line-height: 1.65;
 }
 
-.ai-block + .ai-block {
+.ai-block+.ai-block {
   margin-top: 16px;
 }
 
@@ -1333,5 +1334,78 @@ label {
   .scholar-field,
   .email-field {
     width: 100%;
+  }
+}
+/* --- Confirmation toast --- */
+.app-toast {
+  position: fixed;
+  top: 22px;
+  left: 50%;
+  z-index: 7000;
+  max-width: min(90vw, 520px);
+  transform: translateX(-50%);
+  padding: 12px 18px;
+  border-radius: 8px;
+  background: #1a7f37;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .25);
+  animation: toastIn .25s ease-out both;
+}
+
+/* A "Not Qualified" decision uses the portal's red. */
+.app-toast.app-toast-danger {
+  background: #b32635;
+}
+
+/* --- Save changes --- */
+.profile-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 22px;
+}
+
+.save-changes {
+  height: 34px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 7px;
+  background: $maroon;
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+
+.save-changes:hover:not(:disabled) {
+  background: #720a12;
+}
+
+.save-changes:disabled {
+  opacity: .65;
+  cursor: default;
+}
+
+.confirm-save {
+  background: $maroon;
+  color: #fff;
+}
+
+.confirm-save:hover:not(:disabled) {
+  background: #720a12;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
   }
 }

@@ -409,13 +409,17 @@ form .signup-dropdown-button > span.empty {
   font-size: 10px;
 }
 
-/* Occupies the same slot as the form it replaces, so the two can never
-   overlap. */
+/* The form is absolutely positioned, so the confirmation card takes the very
+   same slot and centring; otherwise the shared fade animation would shift it
+   sideways and the panel would clip its left edge. */
 .confirmation-message {
+  position: absolute;
+  top: calc(15% + 12px);
+  left: 50%;
   width: 76%;
   max-width: 480px;
-  flex: 0 0 auto;
   padding: 28px 26px 24px;
+  transform: translateX(-50%);
   border: 1px solid #ececec;
   border-radius: 14px;
   background: #fff;
@@ -424,7 +428,18 @@ form .signup-dropdown-button > span.empty {
   font-size: 12px;
   line-height: 1.5;
   text-align: center;
-  animation: formFadeIn .42s ease-out both;
+  animation: confirmationFadeIn .42s ease-out both;
+}
+
+@keyframes confirmationFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 .confirmation-icon {
@@ -589,12 +604,13 @@ form .signup-dropdown-button > span.empty {
     flex: 0 0 78px;
   }
 
-  .bottom-message,
-  .confirmation-message {
+  .bottom-message {
+    bottom: 4.6%;
     width: 84%;
   }
 
-  .bottom-message {
-    bottom: 4.6%;
+  .confirmation-message {
+    top: calc(26.1vh + 12px);
+    width: 84%;
   }
 }

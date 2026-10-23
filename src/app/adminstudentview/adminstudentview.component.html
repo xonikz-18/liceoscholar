@@ -169,7 +169,7 @@
                     type="button"
                     aria-haspopup="listbox"
                     [attr.aria-expanded]="applicationStatusOpen"
-                    [disabled]="savingApplicationStatus || !requirementsReviewed"
+                    [disabled]="savingChanges || !requirementsReviewed"
                     [attr.title]="applicationStatusLockedReason"
                     (click)="toggleApplicationStatus()"
                   >
@@ -201,6 +201,18 @@
                 <label>School E-mail</label>
                 <input [value]="student.email" readonly>
               </div>
+            </div>
+
+            <!-- Saves both the reviewed documents and the application status. -->
+            <div class="profile-actions" *ngIf="hasUnsavedChanges">
+              <button
+                type="button"
+                class="save-changes"
+                [disabled]="savingChanges"
+                (click)="askSaveChanges()"
+              >
+                Save Changes
+              </button>
             </div>
           </div>
         </div>
@@ -254,7 +266,7 @@
                 class="status-button"
                 [ngClass]="statusClass(requirement.status)"
                 type="button"
-                [disabled]="!requirement.fileUrl"
+                [disabled]="!requirement.fileUrl || savingChanges"
                 [attr.aria-expanded]="openStatusIndex === i"
                 [attr.title]="requirement.fileUrl ? '' : 'No file uploaded yet — the status cannot be changed.'"
                 (click)="toggleStatus(i)"
@@ -576,4 +588,57 @@
       <button type="button" (click)="backToStudentList()">Back to Student List</button>
     </main>
   </ng-template>
+
+  <!-- Save confirmation, styled like the log-out dialog. -->
+  <div
+    class="preview-overlay"
+    *ngIf="saveConfirmOpen"
+    (click)="cancelSaveChanges()"
+    (keydown.escape)="cancelSaveChanges()"
+  >
+    <section
+      class="confirm-dialog"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="saveChangesTitle"
+      aria-describedby="saveChangesBody"
+      (click)="$event.stopPropagation()"
+    >
+      <h3 id="saveChangesTitle">Save Changes?</h3>
+      <p id="saveChangesBody">
+        Save the updated statuses for <strong>{{ student?.name }}</strong>?
+        A notification email is sent to the student when the application status is
+        <strong>Qualified</strong> or <strong>Not Qualified</strong>.
+      </p>
+
+      <div class="confirm-actions">
+        <button
+          type="button"
+          class="confirm-cancel"
+          [disabled]="savingChanges"
+          (click)="cancelSaveChanges()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="confirm-save"
+          [disabled]="savingChanges"
+          (click)="confirmSaveChanges()"
+        >
+          {{ savingChanges ? 'Saving…' : 'Save Changes' }}
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Confirmation shown after an application status decision. -->
+  <div
+    class="app-toast"
+    *ngIf="toastVisible"
+    role="status"
+    [class.app-toast-danger]="toastTone === 'danger'"
+  >
+    {{ toastMessage }}
+  </div>
 </div>

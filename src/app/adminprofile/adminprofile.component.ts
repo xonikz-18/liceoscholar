@@ -2,8 +2,6 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { ProfilePhotoEditorComponent } from '../profile-photo-editor/profile-photo-editor.component';
-import { AuthService } from '../services/auth.service';
-import { formatDateOfBirth } from '../services/date';
 
 @Component({
   selector: 'app-adminprofile',
@@ -14,15 +12,11 @@ import { formatDateOfBirth } from '../services/date';
 })
 export class AdminprofileComponent {
   private readonly router = inject(Router);
-  private readonly auth = inject(AuthService);
-  private readonly user = this.auth.user();
 
-  /** Snapshot of the signed-in administrator, shown in the profile panel. */
+  /** The office account that runs the scholarship portal. */
   readonly admin = {
-    name: this.user?.fullName || 'Administrator',
-    suffix: this.user?.suffix || 'N/A',
-    dateOfBirth: formatDateOfBirth(this.user?.dateOfBirth) || '—',
-    sex: this.user?.sex || 'N/A'
+    name: 'Liceo U Scholarship Office',
+    email: 'admin@liceo.edu.ph'
   };
 
   openStudentList(): void {

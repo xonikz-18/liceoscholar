@@ -53,7 +53,7 @@ export class AdminstudentlistComponent implements OnInit {
     scholarshipType: [
       'Full Academic Scholarship',
       'Half Academic Scholarship',
-      'Non-Academic Scholarship'
+      'Special Scholarship'
     ],
     course: [
       'School of Business, Management, and Accountancy',

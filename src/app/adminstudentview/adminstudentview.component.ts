@@ -65,7 +65,16 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
 
   /** Application status menu on the student's own card. */
   applicationStatusOpen = false;
-  savingApplicationStatus = false;
+
+  /** True while the pending status edits are being saved. */
+  savingChanges = false;
+
+  /** True while the logout-style save confirmation is open. */
+  saveConfirmOpen = false;
+
+  /** Statuses as last saved on the server, used to detect unsaved edits. */
+  private savedRequirementStatuses: RequirementStatus[] = [];
+  private savedApplicationStatus: StudentStatus = DEFAULT_STUDENT_STATUS;
 
   /** Requirement currently being reviewed by the AI, if any. */
   analyzingId: string | null = null;
@@ -74,6 +83,30 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
   analysisError = '';
 
   private pollTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /** Short confirmation message shown at the top of the page. */
+  toastMessage = '';
+  toastVisible = false;
+  /** Decisions are green when Qualified, red when Not Qualified. */
+  toastTone: 'success' | 'danger' = 'success';
+  private toastTimer: ReturnType<typeof setTimeout> | null = null;
+
+  private showToast(message: string, tone: 'success' | 'danger' = 'success'): void {
+    this.toastMessage = message;
+    this.toastTone = tone;
+    this.toastVisible = true;
+
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
+
+    this.toastTimer = setTimeout(() => {
+      this.toastVisible = false;
+      this.changeDetector.markForCheck();
+    }, 5000);
+
+    this.changeDetector.markForCheck();
+  }
 
   /**
    * Reloads quietly while a review is still running so the verdict appears as
@@ -96,6 +129,12 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
       try {
         const { requirements } = await this.studentsApi.getStudent(this.currentStudentId);
 
+        // Never discard edits the administrator has not saved yet.
+        if (this.hasUnsavedChanges) {
+          this.startPollingIfNeeded();
+          return;
+        }
+
         this.requirements = requirements.map((requirement) => ({
           id: requirement.id,
           date: requirement.date,
@@ -109,6 +148,8 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
           analysisError: requirement.analysisError ?? '',
           aiReviewable: isAiReviewable(requirement.description)
         }));
+
+        this.savedRequirementStatuses = this.requirements.map((requirement) => requirement.status);
 
         this.startPollingIfNeeded();
       } catch {
@@ -175,6 +216,11 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
       clearTimeout(this.pollTimer);
       this.pollTimer = null;
     }
+
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+      this.toastTimer = null;
+    }
   }
 
   ngOnInit(): void {
@@ -217,6 +263,10 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
         aiReviewable: isAiReviewable(requirement.description)
       }));
 
+      // Remember what the server has so unsaved edits can be detected.
+      this.savedRequirementStatuses = this.requirements.map((requirement) => requirement.status);
+      this.savedApplicationStatus = this.student.status;
+
       this.startPollingIfNeeded();
     } catch (error) {
       this.student = undefined;
@@ -229,7 +279,7 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
 
   toggleStatus(index: number): void {
     // Nothing to review without a file, so the menu never opens.
-    if (!this.requirements[index]?.fileUrl) return;
+    if (this.savingChanges || !this.requirements[index]?.fileUrl) return;
 
     this.openStatusIndex = this.openStatusIndex === index ? null : index;
     this.applicationStatusOpen = false;
@@ -266,21 +316,33 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
 
   toggleApplicationStatus(): void {
     // The decision is locked until every document has been reviewed.
-    if (!this.requirementsReviewed) return;
+    if (!this.requirementsReviewed || this.savingChanges) return;
 
     this.applicationStatusOpen = !this.applicationStatusOpen;
     this.openStatusIndex = null;
   }
 
-  /** Saves the student's application status, restoring it if the call fails. */
-  async setApplicationStatus(status: StudentStatus): Promise<void> {
+  /**
+   * True when any status on the page differs from what the server has stored.
+   * The Save button appears while this is true.
+   */
+  get hasUnsavedChanges(): boolean {
     const student = this.student;
-    if (!student || !this.currentStudentId || this.savingApplicationStatus) return;
+    if (!student) return false;
 
-    const previousStatus = student.status;
+    const documentsChanged = this.requirements.some(
+      (requirement, index) => requirement.status !== this.savedRequirementStatuses[index]
+    );
+
+    return documentsChanged || student.status !== this.savedApplicationStatus;
+  }
+
+  /** Stages the application status; nothing is saved or emailed until Save. */
+  setApplicationStatus(status: StudentStatus): void {
+    const student = this.student;
     this.applicationStatusOpen = false;
 
-    if (status === previousStatus) return;
+    if (!student || status === student.status) return;
 
     // "Pending" is always allowed; a final decision needs every document
     // reviewed first.
@@ -289,17 +351,93 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.savingApplicationStatus = true;
     this.student = { ...student, status };
+    this.changeDetector.markForCheck();
+  }
+
+  /** Opens the logout-style confirmation before anything is saved. */
+  askSaveChanges(): void {
+    if (this.savingChanges || !this.hasUnsavedChanges) return;
+
+    this.saveConfirmOpen = true;
+    this.changeDetector.markForCheck();
+  }
+
+  /** Closes the dialog without saving; the staged edits stay on screen. */
+  cancelSaveChanges(): void {
+    if (this.savingChanges) return;
+
+    this.saveConfirmOpen = false;
+    this.changeDetector.markForCheck();
+  }
+
+  /** Confirms the dialog, then commits every staged status. */
+  async confirmSaveChanges(): Promise<void> {
+    if (this.savingChanges) return;
+
+    await this.saveChanges();
+    this.saveConfirmOpen = false;
+    this.changeDetector.markForCheck();
+  }
+
+  /**
+   * Saves every pending status edit, then confirms a final decision.
+   *
+   * Documents go first so the backend sees a fully reviewed set when the
+   * application status is committed — only that last step emails the student.
+   */
+  async saveChanges(): Promise<void> {
+    const student = this.student;
+    const studentId = this.currentStudentId;
+
+    if (!student || !studentId || this.savingChanges || !this.hasUnsavedChanges) return;
+
+    if (student.status !== 'Pending' && !this.requirementsReviewed) {
+      alert(this.applicationStatusLockedReason);
+      return;
+    }
+
+    this.savingChanges = true;
 
     try {
-      const updated = await this.studentsApi.updateStudent(this.currentStudentId, { status });
-      this.student = { ...student, status: updated.status ?? status };
+      for (let index = 0; index < this.requirements.length; index += 1) {
+        const requirement = this.requirements[index];
+        if (requirement.status === this.savedRequirementStatuses[index]) continue;
+
+        const updated = await this.studentsApi.updateRequirementStatus(
+          requirement.id,
+          requirement.status
+        );
+
+        this.requirements[index] = { ...requirement, status: updated.status };
+        this.savedRequirementStatuses[index] = updated.status;
+      }
+
+      let savedStatus = student.status;
+      let applicationChanged = false;
+
+      if (student.status !== this.savedApplicationStatus) {
+        applicationChanged = true;
+
+        const updated = await this.studentsApi.updateStudent(studentId, { status: student.status });
+        savedStatus = updated.status ?? student.status;
+        this.student = { ...student, status: savedStatus };
+        this.savedApplicationStatus = savedStatus;
+      }
+
+      // A final decision also emails the student, so confirm both here.
+      if (applicationChanged && (savedStatus === 'Qualified' || savedStatus === 'Not Qualified')) {
+        this.showToast(
+          `${student.name} is now ${savedStatus}. A notification email was sent to ${student.email}.`,
+          savedStatus === 'Qualified' ? 'success' : 'danger'
+        );
+      } else {
+        this.showToast('Statuses saved.');
+      }
     } catch (error) {
-      this.student = { ...student, status: previousStatus };
       alert(describeHttpError(error));
     } finally {
-      this.savingApplicationStatus = false;
+      this.savingChanges = false;
       this.changeDetector.markForCheck();
     }
   }
@@ -375,28 +513,22 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
     return /^image\//i.test(mimeType || '');
   }
 
-  /** Saves the new status through the API, restoring it if the call fails. */
-  async setStatus(index: number, status: RequirementStatus): Promise<void> {
+  /** Stages a document status; the Save button commits it. */
+  setStatus(index: number, status: RequirementStatus): void {
     const requirement = this.requirements[index];
 
     // A document has to exist before it can be judged.
-    if (!requirement.fileUrl) {
+    if (!requirement?.fileUrl) {
       this.openStatusIndex = null;
       return;
     }
 
-    const previousStatus = requirement.status;
     this.openStatusIndex = null;
 
-    try {
-      const updated = await this.studentsApi.updateRequirementStatus(requirement.id, status);
-      this.requirements[index] = { ...requirement, status: updated.status };
-    } catch (error) {
-      this.requirements[index] = { ...requirement, status: previousStatus };
-      alert(describeHttpError(error));
-    } finally {
-      this.changeDetector.markForCheck();
-    }
+    if (status === requirement.status) return;
+
+    this.requirements[index] = { ...requirement, status };
+    this.changeDetector.markForCheck();
   }
 
   backToStudentList(): void {

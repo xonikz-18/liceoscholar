@@ -202,22 +202,22 @@ $maroon: #850d16;
     position: absolute;
     top: -7vh;
     left: 50%;
-    width: calc(100vw - clamp(260px, 28vw, 340px));
+    width: 1180px;
     aspect-ratio: 1492 / 198;
     transform: translateX(-50%);
     content: "";
     background: url("../assets/images/liceancoverphoto.png") center / 100% 100% no-repeat;
   }
 
-  > .summary {
+  >.summary {
     animation: dashboardFadeIn .35s ease-out both;
   }
 
-  > .dashboard > .section-title {
+  >.dashboard>.section-title {
     animation: dashboardFadeIn .35s ease-out .12s both;
   }
 
-  > .dashboard > .dash-card {
+  >.dashboard>.dash-card {
     animation: dashboardFadeIn .35s ease-out .24s both;
   }
 }
@@ -226,35 +226,35 @@ $maroon: #850d16;
   animation: dashboardFadeIn .35s ease-out .34s both;
 }
 
-.tier-detail > .tier-head {
+.tier-detail>.tier-head {
   animation: dashboardFadeIn .35s ease-out .42s both;
 }
 
-.tier-grid > .tier-block {
+.tier-grid>.tier-block {
   animation: dashboardFadeIn .35s ease-out both;
 }
 
-.tier-grid > .tier-block:nth-child(1) {
+.tier-grid>.tier-block:nth-child(1) {
   animation-delay: .48s;
 }
 
-.tier-grid > .tier-block:nth-child(2) {
+.tier-grid>.tier-block:nth-child(2) {
   animation-delay: .54s;
 }
 
-.tier-grid > .tier-block:nth-child(3) {
+.tier-grid>.tier-block:nth-child(3) {
   animation-delay: .6s;
 }
 
-.tier-grid > .tier-block:nth-child(4) {
+.tier-grid>.tier-block:nth-child(4) {
   animation-delay: .66s;
 }
 
-.tier-grid > .tier-block:nth-child(5) {
+.tier-grid>.tier-block:nth-child(5) {
   animation-delay: .72s;
 }
 
-.tier-grid > .tier-block:nth-child(6) {
+.tier-grid>.tier-block:nth-child(6) {
   animation-delay: .78s;
 }
 
@@ -263,6 +263,7 @@ $maroon: #850d16;
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -270,12 +271,13 @@ $maroon: #850d16;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dashboard-content > .summary,
-  .dashboard-content > .dashboard > .section-title,
-  .dashboard-content > .dashboard > .dash-card,
+
+  .dashboard-content>.summary,
+  .dashboard-content>.dashboard>.section-title,
+  .dashboard-content>.dashboard>.dash-card,
   .tier-tabs,
-  .tier-detail > .tier-head,
-  .tier-grid > .tier-block {
+  .tier-detail>.tier-head,
+  .tier-grid>.tier-block {
     animation: none;
   }
 }
@@ -510,6 +512,7 @@ $maroon: #850d16;
 }
 
 @media (max-width: 800px) {
+
   .tier-tabs,
   .tier-grid {
     grid-template-columns: 1fr;
