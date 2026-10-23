@@ -64,7 +64,7 @@ export class SignupComponent {
   readonly scholarshipOptions = [
     'Full Academic Scholarship',
     'Half Academic Scholarship',
-    'Non-Academic Scholarship'
+    'Special Scholarship'
   ];
 
   get passwordHasNumber(): boolean {
