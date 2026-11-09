@@ -113,7 +113,6 @@ $gray: #d9d9d9;
   border-radius: 11px;
   background: $maroon;
   transform: translateX(0);
-  transition: transform 0.36s cubic-bezier(.22, 1, .36, 1);
 }
 
 .tabs .slider.slide-right {
@@ -129,31 +128,6 @@ form {
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
-}
-
-.fade-in {
-  animation: formFadeIn .42s ease-out both;
-}
-
-@keyframes formFadeIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 10px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tabs .slider {
-    transition-duration: .01ms;
-  }
-
-  form.fade-in {
-    animation: none;
-  }
 }
 
 label {

@@ -5,11 +5,11 @@
     <div class="form-box">
       <div class="tabs">
         <span class="slider" [class.slide-left]="switching"></span>
-        <button type="button" (click)="goToLogin()">Log In</button>
-        <button type="button" class="active">Sign Up</button>
+        <button type="button" [class.active]="switching" (click)="goToLogin()">Log In</button>
+        <button type="button" [class.active]="!switching">Sign Up</button>
       </div>
 
-      <form *ngIf="!confirmationPending" [class.fade-in]="animateForm" (ngSubmit)="signup()">
+      <form *ngIf="!confirmationPending" (ngSubmit)="signup()">
         <div class="name-row">
           <div class="fullname-field">
             <label for="fullName">Full Name <span class="required-mark" aria-hidden="true">*</span></label>
@@ -133,13 +133,65 @@
         </div>
 
         <label for="signupPassword">Password <span class="required-mark" aria-hidden="true">*</span></label>
-        <input id="signupPassword" type="password" name="signupPassword" placeholder="At least 8 characters, 1 number, 1 capital" autocomplete="new-password" [(ngModel)]="signupPassword" required>
+        <div class="password-field">
+          <input
+            id="signupPassword"
+            [type]="showPassword ? 'text' : 'password'"
+            name="signupPassword"
+            placeholder="At least 8 characters, 1 number, 1 capital"
+            autocomplete="new-password"
+            [(ngModel)]="signupPassword"
+            required
+          >
+          <button
+            class="password-toggle"
+            type="button"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+            [attr.aria-pressed]="showPassword"
+            (click)="showPassword = !showPassword"
+          >
+            <svg *ngIf="showPassword" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg *ngIf="!showPassword" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m3 3 18 18M10.6 6.2A10.8 10.8 0 0 1 12 6c6.4 0 10 6 10 6a15.8 15.8 0 0 1-4.1 4.4M6.2 6.2C3.5 8 2 12 2 12s3.6 6 10 6a10.8 10.8 0 0 0 3.1-.5"></path>
+              <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"></path>
+            </svg>
+          </button>
+        </div>
         <p class="password-hint" *ngIf="passwordRequirementsError" role="alert">
           Password must be at least 8 characters and include one number and one uppercase letter.
         </p>
 
         <label for="confirmPassword">Confirm Password <span class="required-mark" aria-hidden="true">*</span></label>
-        <input id="confirmPassword" type="password" name="confirmPassword" placeholder="Re-enter your password" autocomplete="new-password" [(ngModel)]="confirmPassword" required>
+        <div class="password-field">
+          <input
+            id="confirmPassword"
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            name="confirmPassword"
+            placeholder="Re-enter your password"
+            autocomplete="new-password"
+            [(ngModel)]="confirmPassword"
+            required
+          >
+          <button
+            class="password-toggle"
+            type="button"
+            [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'"
+            [attr.aria-pressed]="showConfirmPassword"
+            (click)="showConfirmPassword = !showConfirmPassword"
+          >
+            <svg *ngIf="showConfirmPassword" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg *ngIf="!showConfirmPassword" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m3 3 18 18M10.6 6.2A10.8 10.8 0 0 1 12 6c6.4 0 10 6 10 6a15.8 15.8 0 0 1-4.1 4.4M6.2 6.2C3.5 8 2 12 2 12s3.6 6 10 6a10.8 10.8 0 0 0 3.1-.5"></path>
+              <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"></path>
+            </svg>
+          </button>
+        </div>
 
         <button type="submit" class="submit">Sign Up</button>
         <p class="signup-error" *ngIf="signupError" role="alert">{{ signupError }}</p>

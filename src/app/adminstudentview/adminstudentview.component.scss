@@ -169,7 +169,7 @@ $gray: #d9d9d9;
   height: 18px;
   padding-left: 3px;
   margin-bottom: 28px;
-  color: #aaa;
+  color: #000;
   font-size: 16px;
 }
 
@@ -332,7 +332,7 @@ $gray: #d9d9d9;
 label {
   display: block;
   margin: 0 0 7px 3px;
-  color: #aaa;
+  color: #000;
   font-size: 11px;
 }
 
@@ -344,8 +344,11 @@ label {
   border-radius: 6px;
   outline: 0;
   background: $gray;
-  color: #888;
+  color: #000;
   font-size: 12px;
+  /* These fields only show information, so they should not be clickable. */
+  pointer-events: none;
+  cursor: default;
 }
 
 .requirements {
@@ -358,7 +361,7 @@ label {
   align-items: center;
   gap: 8px;
   margin: 0 0 20px 3px;
-  color: #aaa;
+  color: #000;
   font-size: 17px;
 }
 
@@ -389,7 +392,7 @@ label {
   margin-bottom: 8px;
   border-radius: 8px;
   background: #ddd;
-  color: #aaa;
+  color: #000;
   font-size: 12px;
 }
 
@@ -399,7 +402,7 @@ label {
 
 .date,
 .separator {
-  color: #bbb;
+  color: #000;
   text-align: center;
 }
 
@@ -521,7 +524,7 @@ label {
 }
 
 .file-name.empty {
-  color: #b3b3b3;
+  color: #000;
   font-style: italic;
 }
 

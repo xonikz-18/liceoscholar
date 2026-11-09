@@ -20,7 +20,7 @@ $gray: #d9d9d9;
   height: 100%;
   overflow: hidden;
   background: #fff;
-  color: #aaa;
+  color: #000;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 16px;
 }
@@ -212,7 +212,7 @@ $gray: #d9d9d9;
   border: 0;
   outline: 0;
   background: transparent;
-  color: #777;
+  color: #000;
   font: inherit;
   font-size: 16px;
   line-height: 1;
@@ -220,7 +220,7 @@ $gray: #d9d9d9;
 }
 
 .search-box input::placeholder {
-  color: #aaa;
+  color: #000;
 }
 
 .filters {
@@ -298,13 +298,13 @@ $gray: #d9d9d9;
 
 .reset-dialog p {
   margin: 0 0 14px;
-  color: #8a8a8a;
+  color: #000;
   font-size: 12.5px;
   line-height: 1.6;
 }
 
 .reset-dialog p strong {
-  color: #444;
+  color: #000;
 }
 
 .reset-note {
@@ -347,7 +347,7 @@ $gray: #d9d9d9;
 
 .reset-cancel {
   background: #eee;
-  color: #777;
+  color: #000;
 }
 
 .reset-cancel:hover:not(:disabled) {
@@ -430,17 +430,24 @@ $gray: #d9d9d9;
   box-shadow: 0 3px 9px rgba(0, 0, 0, .16);
 }
 
+/* The course names are long, so this menu gets extra room. */
+.filter-menu.course-filter-menu {
+  width: max(100%, 280px);
+}
+
 .filter-menu button {
   min-height: 36px;
-  flex: 0 0 36px;
-  padding: 0 12px;
+  flex: 0 0 auto;
+  padding: 8px 12px;
   border: 0;
   background: #fff;
-  color: #999;
+  color: #000;
   font-size: 12px;
   font-weight: 400;
   text-align: left;
-  white-space: nowrap;
+  /* Let long course names wrap instead of being cut off. */
+  white-space: normal;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 
@@ -493,14 +500,14 @@ $gray: #d9d9d9;
   padding: 0 16px;
   border-radius: 8px;
   background: #ddd;
-  color: #aaa;
+  color: #000;
   font-size: 14px;
 }
 
 .table-header {
   min-height: 26px;
   background: transparent;
-  color: #aaa;
+  color: #000;
   font-size: 14px;
 }
 
@@ -550,7 +557,7 @@ $gray: #d9d9d9;
 
 .empty-state {
   margin: 12px;
-  color: #999;
+  color: #000;
   font-size: 14px;
   text-align: center;
 }

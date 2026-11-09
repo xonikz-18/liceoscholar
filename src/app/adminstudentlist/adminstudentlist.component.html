@@ -99,7 +99,11 @@
             <span>{{ filterLabels[key] }}</span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
-          <div class="filter-menu" *ngIf="activeFilter === key">
+          <div
+            class="filter-menu"
+            [class.course-filter-menu]="key === 'course'"
+            *ngIf="activeFilter === key"
+          >
             <button
               type="button"
               [class.selected]="selectedFilters[key] === 'All'"

@@ -26,7 +26,6 @@ export class LoginComponent implements OnDestroy, OnInit {
   resendMessage = '';
   showPassword = false;
   switching = false;
-  readonly animateForm = history.state?.fadeAuthForm === true;
 
   // --- Forgot password ------------------------------------------------
   showResetModal = false;
@@ -85,7 +84,7 @@ export class LoginComponent implements OnDestroy, OnInit {
 
   goToSignup(): void {
     this.switching = true;
-    setTimeout(() => this.router.navigate(['/signup'], { state: { fadeAuthForm: true } }), 360);
+    setTimeout(() => this.router.navigate(['/signup']), 360);
   }
 
   clearLoginError(): void {

@@ -34,12 +34,23 @@ export class SignupComponent {
   activeSignupDropdown: SignupDropdown | null = null;
   signupPassword = '';
   confirmPassword = '';
+  showPassword = false;
+  showConfirmPassword = false;
   confirmationPending = false;
   signupError = '';
   resendMessage = '';
   passwordRequirementsError = false;
+
+  fullNameError = '';
+  emailError = '';
+  dateOfBirthError = '';
+  sexError = '';
+  courseError = '';
+  yearLevelError = '';
+  scholarshipError = '';
+  passwordError = '';
+  confirmPasswordError = '';
   switching = false;
-  readonly animateForm = history.state?.fadeAuthForm === true;
   /** Nothing after today can be a birth date. */
   readonly maxDateOfBirth = todayAsDateInput();
   readonly courseOptions = [
@@ -81,7 +92,7 @@ export class SignupComponent {
 
   goToLogin(): void {
     this.switching = true;
-    setTimeout(() => this.router.navigate(['/login'], { state: { fadeAuthForm: true } }), 360);
+    setTimeout(() => this.router.navigate(['/login']), 360);
   }
 
   toggleSignupDropdown(dropdown: SignupDropdown): void {
@@ -111,43 +122,80 @@ export class SignupComponent {
   async signup(): Promise<void> {
     this.signupError = '';
     this.passwordRequirementsError = false;
+    this.fullNameError = '';
+    this.emailError = '';
+    this.dateOfBirthError = '';
+    this.sexError = '';
+    this.courseError = '';
+    this.yearLevelError = '';
+    this.scholarshipError = '';
+    this.passwordError = '';
+    this.confirmPasswordError = '';
 
     if (this.confirmationPending) {
       return;
     }
 
-    if (
-      !this.fullName.trim()
-      || !this.signupEmail.trim()
-      || !this.dateOfBirth
-      || !this.sex
-      || !this.course
-      || !this.yearLevel
-      || !this.scholarshipType
-      || !this.signupPassword
-      || !this.confirmPassword
-    ) {
-      this.signupError = 'Please complete all fields.';
-      return;
+    let hasError = false;
+
+    if (!this.fullName.trim()) {
+      this.fullNameError = 'Please enter your full name.';
+      hasError = true;
     }
 
-    if (!isValidDateOfBirth(this.dateOfBirth)) {
-      this.signupError = 'Enter a valid date of birth.';
-      return;
+    if (!this.signupEmail.trim()) {
+      this.emailError = 'Please enter your school email.';
+      hasError = true;
+    } else if (!isSchoolEmail(this.signupEmail)) {
+      this.emailError = SCHOOL_EMAIL_MESSAGE;
+      hasError = true;
     }
 
-    if (!isSchoolEmail(this.signupEmail)) {
-      this.signupError = SCHOOL_EMAIL_MESSAGE;
-      return;
+    if (!this.dateOfBirth) {
+      this.dateOfBirthError = 'Please choose your date of birth.';
+      hasError = true;
+    } else if (!isValidDateOfBirth(this.dateOfBirth)) {
+      this.dateOfBirthError = 'Enter a valid date of birth.';
+      hasError = true;
     }
 
-    if (!this.passwordHasMinLength || !this.passwordHasNumber || !this.passwordHasUppercase) {
-      this.passwordRequirementsError = true;
-      return;
+    if (!this.sex) {
+      this.sexError = 'Please choose your sex.';
+      hasError = true;
     }
 
-    if (this.signupPassword !== this.confirmPassword) {
-      this.signupError = 'Passwords do not match.';
+    if (!this.course) {
+      this.courseError = 'Please choose a course.';
+      hasError = true;
+    }
+
+    if (!this.yearLevel) {
+      this.yearLevelError = 'Please choose a year level.';
+      hasError = true;
+    }
+
+    if (!this.scholarshipType) {
+      this.scholarshipError = 'Please choose a scholarship type.';
+      hasError = true;
+    }
+
+    if (!this.signupPassword) {
+      this.passwordError = 'Please enter a password.';
+      hasError = true;
+    } else if (!this.passwordHasMinLength || !this.passwordHasNumber || !this.passwordHasUppercase) {
+      this.passwordError = 'Password must be at least 8 characters with a number and uppercase letter.';
+      hasError = true;
+    }
+
+    if (!this.confirmPassword) {
+      this.confirmPasswordError = 'Please confirm your password.';
+      hasError = true;
+    } else if (this.signupPassword !== this.confirmPassword) {
+      this.confirmPasswordError = 'Passwords do not match.';
+      hasError = true;
+    }
+
+    if (hasError) {
       return;
     }
 
@@ -166,7 +214,25 @@ export class SignupComponent {
 
       this.confirmationPending = true;
     } catch (error) {
-      this.signupError = describeHttpError(error);
+      const details = (error as { error?: { details?: { field?: string; message?: string }[] } })?.error?.details;
+      if (Array.isArray(details) && details.length > 0) {
+        for (const item of details) {
+          const field = item?.field;
+          const message = item?.message || 'Invalid value.';
+          if (field === 'fullName') this.fullNameError = message;
+          else if (field === 'email') this.emailError = message;
+          else if (field === 'dateOfBirth') this.dateOfBirthError = message;
+          else if (field === 'sex') this.sexError = message;
+          else if (field === 'course') this.courseError = message;
+          else if (field === 'yearLevel') this.yearLevelError = message;
+          else if (field === 'scholarshipType') this.scholarshipError = message;
+          else if (field === 'password') this.passwordError = message;
+          else if (field === 'confirmPassword') this.confirmPasswordError = message;
+          else this.signupError = message;
+        }
+      } else {
+        this.signupError = describeHttpError(error);
+      }
     } finally {
       this.changeDetector.markForCheck();
     }
@@ -193,6 +259,15 @@ export class SignupComponent {
     this.signupError = '';
     this.resendMessage = '';
     this.passwordRequirementsError = false;
+    this.fullNameError = '';
+    this.emailError = '';
+    this.dateOfBirthError = '';
+    this.sexError = '';
+    this.courseError = '';
+    this.yearLevelError = '';
+    this.scholarshipError = '';
+    this.passwordError = '';
+    this.confirmPasswordError = '';
     this.activeSignupDropdown = null;
     this.fullName = '';
     this.suffix = '';

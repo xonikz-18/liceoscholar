@@ -114,7 +114,6 @@ $gray: #d9d9d9;
   border-radius: 11px;
   background: $maroon;
   transform: translateX(0);
-  transition: transform 0.36s cubic-bezier(.22, 1, .36, 1);
 }
 
 .tabs .slider.slide-left {
@@ -131,31 +130,6 @@ form {
   display: flex;
   flex-direction: column;
   padding-bottom: 10px;
-}
-
-.fade-in {
-  animation: formFadeIn .42s ease-out both;
-}
-
-@keyframes formFadeIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 10px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tabs .slider {
-    transition-duration: .01ms;
-  }
-
-  form.fade-in {
-    animation: none;
-  }
 }
 
 label {
@@ -194,6 +168,49 @@ input {
 
 input:focus {
   box-shadow: 0 0 0 2px rgba(133, 13, 22, 0.15);
+}
+
+.password-field {
+  position: relative;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.password-field input {
+  margin-bottom: 0;
+  padding-right: 44px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  transform: translateY(-50%);
+  place-items: center;
+  padding: 4px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+}
+
+.password-toggle:hover,
+.password-toggle:focus-visible {
+  background: rgba(0, 0, 0, .06);
+}
+
+.password-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
 input[type="date"]:invalid {
@@ -573,6 +590,10 @@ form .signup-dropdown-button > span.empty {
 
   input {
     height: 30px;
+    margin-bottom: 4px;
+  }
+
+  .password-field {
     margin-bottom: 4px;
   }
 

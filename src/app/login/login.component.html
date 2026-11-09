@@ -5,11 +5,11 @@
     <div class="form-box">
       <div class="tabs">
         <span class="slider" [class.slide-right]="switching"></span>
-        <button type="button" class="active">Log In</button>
-        <button type="button" (click)="goToSignup()">Sign Up</button>
+        <button type="button" [class.active]="!switching">Log In</button>
+        <button type="button" [class.active]="switching" (click)="goToSignup()">Sign Up</button>
       </div>
 
-      <form [class.fade-in]="animateForm" (ngSubmit)="login()">
+      <form (ngSubmit)="login()">
         <div class="email-field">
           <label for="loginEmail">School E-mail <span class="required-mark" aria-hidden="true">*</span></label>
           <input
