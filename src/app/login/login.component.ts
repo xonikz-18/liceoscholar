@@ -3,9 +3,12 @@ import { NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { toast } from 'ngx-sonner';
+
 import { AuthService } from '../services/auth.service';
 import { describeHttpError, isEmailUnconfirmedError } from '../services/api.config';
 import { isSchoolEmail, SCHOOL_EMAIL_MESSAGE } from '../services/school-email';
+import { AuthFormStateService } from '../services/auth-form-state.service';
 
 @Component({
   selector: 'app-login',
@@ -18,9 +21,15 @@ export class LoginComponent implements OnDestroy, OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly formState = inject(AuthFormStateService);
 
-  loginEmail = '';
-  loginPassword = '';
+  // These getters/setters keep the values in the shared service
+  // so they are not lost when the user switches to Sign Up and back.
+  get loginEmail(): string { return this.formState.loginEmail; }
+  set loginEmail(value: string) { this.formState.loginEmail = value; }
+
+  get loginPassword(): string { return this.formState.loginPassword; }
+  set loginPassword(value: string) { this.formState.loginPassword = value; }
   loginError = '';
   needsConfirmation = false;
   resendMessage = '';
@@ -95,18 +104,32 @@ export class LoginComponent implements OnDestroy, OnInit {
 
   /** Signs in through the API; students land on the portal, admins on the list. */
   async login(): Promise<void> {
-    const attemptedEmail = this.loginEmail;
-    const attemptedPassword = this.loginPassword;
+    const attemptedEmail = this.loginEmail.trim();
+    const attemptedPassword = this.loginPassword.trim();
 
-    if (!attemptedEmail || !attemptedPassword) {
-      this.loginError = 'Please enter your school email or admin username and password.';
+    if (!attemptedEmail && !attemptedPassword) {
+      toast.error('Please enter your email and password.');
+      this.loginError = 'Please enter your email and password.';
       return;
     }
 
-    const attemptedIdentifier = attemptedEmail.trim().toLowerCase();
+    if (!attemptedEmail) {
+      toast.error('Please enter your email.');
+      this.loginError = 'Please enter your email.';
+      return;
+    }
+
+    if (!attemptedPassword) {
+      toast.error('Please enter your password.');
+      this.loginError = 'Please enter your password.';
+      return;
+    }
+
+    const attemptedIdentifier = attemptedEmail.toLowerCase();
     // Admins sign in with a plain username, so only an address has to pass the
     // school-domain check.
     if (attemptedIdentifier.includes('@') && !isSchoolEmail(attemptedIdentifier)) {
+      toast.error(SCHOOL_EMAIL_MESSAGE);
       this.loginError = SCHOOL_EMAIL_MESSAGE;
       return;
     }
@@ -114,12 +137,15 @@ export class LoginComponent implements OnDestroy, OnInit {
     this.loginError = '';
 
     try {
-      const user = await this.auth.login(attemptedEmail.trim(), attemptedPassword);
+      const user = await this.auth.login(attemptedEmail, attemptedPassword);
+      toast.success('Login successful! Welcome back.');
       await this.router.navigate([user.role === 'admin' ? '/adminstudentlist' : '/studentview']);
     } catch (error) {
-      if (this.loginEmail === attemptedEmail && this.loginPassword === attemptedPassword) {
+      if (this.loginEmail.trim() === attemptedEmail && this.loginPassword.trim() === attemptedPassword) {
         this.needsConfirmation = isEmailUnconfirmedError(error);
-        this.showLoginError(describeHttpError(error));
+        const displayMsg = 'Invalid email or password. Please try again.';
+        toast.error(displayMsg);
+        this.showLoginError(displayMsg);
       }
     }
   }

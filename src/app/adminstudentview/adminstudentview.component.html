@@ -137,15 +137,15 @@
             </div>
 
             <div class="row">
-              <div class="course-field">
+              <div class="course-field" style="flex: 2;">
                 <label>Course</label>
-                <input [value]="student.course" readonly>
+                <input [value]="student.course" readonly style="white-space: normal; text-overflow: clip; overflow: visible;">
               </div>
-              <div class="year-field">
+              <div class="year-field" style="flex: 1;">
                 <label>Year Level</label>
                 <input [value]="student.yearLevel" readonly>
               </div>
-              <div class="dob-field">
+              <div class="dob-field" style="flex: 1;">
                 <label>Date of Birth</label>
                 <input [value]="student.dateOfBirth" readonly>
               </div>

@@ -66,7 +66,8 @@ $gray: #d9d9d9;
   width: 100%;
   max-width: 620px;
   height: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .tabs {
@@ -94,14 +95,18 @@ $gray: #d9d9d9;
   padding: 0;
   border: 0;
   background: transparent;
-  color: $maroon;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  transition: color 0.36s ease;
 }
 
 .tabs button.active {
-  color: #fff;
+  color: #fff !important;
+}
+
+.tabs button.inactive {
+  color: $maroon !important;
 }
 
 .tabs .slider {
@@ -121,17 +126,43 @@ $gray: #d9d9d9;
 }
 
 form {
-  position: absolute;
-  top: calc(15% + 12px);
-  left: 50%;
+  position: relative;
+  margin: calc(15% + 12px) auto 20px;
   width: 76%;
   max-width: 480px;
-  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   padding-bottom: 10px;
 }
 
+<<<<<<< HEAD
+=======
+.fade-in {
+  animation: formFadeIn .42s ease-out both;
+}
+
+@keyframes formFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs .slider {
+    transition-duration: .01ms;
+  }
+
+  form.fade-in {
+    animation: none;
+  }
+}
+
+>>>>>>> 6a14b3280181b06909fce3487199c03913fe5134
 label {
   margin: 0 0 4px 3px;
   color: #000;
@@ -151,6 +182,12 @@ form label {
 .password-hint {
   margin: -10px 0 14px 3px;
   color: #850d16;
+  font-size: 10px;
+}
+
+.password-helper-text {
+  margin: -6px 0 10px 3px;
+  color: #888;
   font-size: 10px;
 }
 
@@ -415,28 +452,19 @@ form .signup-dropdown-button > span.empty {
 }
 
 .bottom-message {
-  position: absolute;
-  left: 50%;
-  bottom: 8%;
-  width: 76%;
-  max-width: 480px;
-  transform: translateX(-50%);
+  margin: 10px 0 0;
   text-align: center;
   color: #999;
   font-size: 10px;
 }
 
-/* The form is absolutely positioned, so the confirmation card takes the very
-   same slot and centring; otherwise the shared fade animation would shift it
-   sideways and the panel would clip its left edge. */
+/* The confirmation card uses the same flow position as the form. */
 .confirmation-message {
-  position: absolute;
-  top: calc(15% + 12px);
-  left: 50%;
+  position: relative;
+  margin: calc(15% + 12px) auto 20px;
   width: 76%;
   max-width: 480px;
   padding: 28px 26px 24px;
-  transform: translateX(-50%);
   border: 1px solid #ececec;
   border-radius: 14px;
   background: #fff;
@@ -451,11 +479,11 @@ form .signup-dropdown-button > span.empty {
 @keyframes confirmationFadeIn {
   from {
     opacity: 0;
-    transform: translate(-50%, 10px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translateY(0);
   }
 }
 
@@ -584,7 +612,7 @@ form .signup-dropdown-button > span.empty {
   }
 
   form {
-    top: calc(26.1vh + 12px);
+    margin-top: calc(26.1vh + 12px);
     width: 84%;
   }
 
@@ -626,12 +654,11 @@ form .signup-dropdown-button > span.empty {
   }
 
   .bottom-message {
-    bottom: 4.6%;
     width: 84%;
   }
 
   .confirmation-message {
-    top: calc(26.1vh + 12px);
+    margin-top: calc(26.1vh + 12px);
     width: 84%;
   }
 }

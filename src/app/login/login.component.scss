@@ -66,6 +66,8 @@ $gray: #d9d9d9;
   width: 100%;
   max-width: 620px;
   height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .tabs {
@@ -93,14 +95,18 @@ $gray: #d9d9d9;
   padding: 0;
   border: 0;
   background: transparent;
-  color: $maroon;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  transition: color 0.36s ease;
 }
 
 .tabs button.active {
-  color: #fff;
+  color: #fff !important;
+}
+
+.tabs button.inactive {
+  color: $maroon !important;
 }
 
 .tabs .slider {
@@ -120,16 +126,42 @@ $gray: #d9d9d9;
 }
 
 form {
-  position: absolute;
-  top: calc(18% + 12px);
-  left: 50%;
+  position: relative;
+  margin: calc(18% + 12px) auto 0;
   width: 76%;
   max-width: 480px;
-  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
 }
 
+<<<<<<< HEAD
+=======
+.fade-in {
+  animation: formFadeIn .42s ease-out both;
+}
+
+@keyframes formFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs .slider {
+    transition-duration: .01ms;
+  }
+
+  form.fade-in {
+    animation: none;
+  }
+}
+
+>>>>>>> 6a14b3280181b06909fce3487199c03913fe5134
 label {
   margin: 0 0 7px 3px;
   color: #000;
@@ -282,12 +314,7 @@ input:focus {
 }
 
 .bottom-message {
-  position: absolute;
-  left: 50%;
-  bottom: 8%;
-  width: 76%;
-  max-width: 480px;
-  transform: translateX(-50%);
+  margin: 16px 0 0;
   text-align: center;
   color: #999;
   font-size: 10px;
@@ -499,12 +526,11 @@ input:focus {
   }
 
   form {
-    top: calc(14% + 12px);
+    margin-top: calc(14% + 12px);
     width: 84%;
   }
 
   .bottom-message {
-    bottom: 6%;
     width: 84%;
   }
 }

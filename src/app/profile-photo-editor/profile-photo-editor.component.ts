@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, Input, OnInit, inject } from '@angular/core';
 
+import { toast } from 'ngx-sonner';
+
 import { AccountService } from '../services/account.service';
 import { describeHttpError, resolveFileUrl } from '../services/api.config';
 import { AuthService } from '../services/auth.service';
@@ -208,10 +210,13 @@ export class ProfilePhotoEditorComponent implements OnInit {
       if (remotePhoto) {
         this.photoUrl = remotePhoto;
       }
+      toast.success('Profile photo updated successfully.');
       this.changeDetector.markForCheck();
     } catch (error) {
       console.error('Unable to upload the profile photo.', error);
-      this.errorMessage = describeHttpError(error);
+      const errMsg = describeHttpError(error);
+      this.errorMessage = errMsg;
+      toast.error(errMsg);
       // The picture was never stored, so fall back to what the account has.
       this.photoUrl = resolveFileUrl(this.auth.user()?.profilePhotoUrl);
       this.changeDetector.markForCheck();

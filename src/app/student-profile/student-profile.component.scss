@@ -81,9 +81,15 @@ $gray: #d9d9d9;
   background: $gray;
   color: #333;
   font-size: 14px;
+<<<<<<< HEAD
   /* These fields only show information, so they should not be clickable. */
   pointer-events: none;
   cursor: default;
+=======
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+>>>>>>> 6a14b3280181b06909fce3487199c03913fe5134
 }
 
 .name-field {

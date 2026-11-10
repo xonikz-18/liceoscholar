@@ -279,7 +279,13 @@ $gray: #d9d9d9;
 }
 
 .course-field {
-  flex: 1.35;
+  flex: 2;
+}
+
+.course-field input {
+  text-overflow: clip;
+  overflow: visible;
+  white-space: normal;
 }
 
 .year-field {

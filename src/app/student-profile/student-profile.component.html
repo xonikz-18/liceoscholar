@@ -26,29 +26,31 @@
         </div>
 
         <div class="row">
-          <div class="course-field">
+          <div class="course-field" style="flex: 1 1 100%;">
             <label>Course</label>
-            <input [value]="account.course || '—'" readonly>
-          </div>
-
-          <div class="year-field">
-            <label>Year Level</label>
-            <input [value]="account.yearLevel || '—'" readonly>
-          </div>
-
-          <div class="dob-field">
-            <label>Date of Birth</label>
-            <input [value]="dobDisplay(account)" readonly>
+            <input [value]="account.course || '—'" readonly style="white-space: normal; text-overflow: clip; overflow: visible;">
           </div>
         </div>
 
         <div class="row">
-          <div class="sex-field">
+          <div class="year-field" style="flex: 1;">
+            <label>Year Level</label>
+            <input [value]="account.yearLevel || '—'" readonly>
+          </div>
+
+          <div class="dob-field" style="flex: 1;">
+            <label>Date of Birth</label>
+            <input [value]="dobDisplay(account)" readonly>
+          </div>
+
+          <div class="sex-field" style="flex: 1;">
             <label>Sex</label>
             <input [value]="account.sex || 'N/A'" readonly>
           </div>
+        </div>
 
-          <div class="email-field">
+        <div class="row">
+          <div class="email-field" style="flex: 1 1 100%;">
             <label>School E-mail</label>
             <input [value]="account.email || '—'" readonly>
           </div>
