@@ -3,10 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { toast } from 'ngx-sonner';
+
 import { AuthService } from '../services/auth.service';
 import { describeHttpError } from '../services/api.config';
 import { isValidDateOfBirth, todayAsDateInput } from '../services/date';
 import { isSchoolEmail, SCHOOL_EMAIL_MESSAGE } from '../services/school-email';
+import { AuthFormStateService } from '../services/auth-form-state.service';
 
 type SignupDropdown = 'yearLevel' | 'sex' | 'course' | 'scholarshipType';
 
@@ -21,19 +24,41 @@ export class SignupComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly formState = inject(AuthFormStateService);
 
-  fullName = '';
-  suffix = '';
-  signupEmail = '';
-  /** `YYYY-MM-DD` from the date picker. */
-  dateOfBirth = '';
-  sex = '';
-  course = '';
-  yearLevel = '';
-  scholarshipType = '';
+  // These getters/setters keep the values in the shared service
+  // so they are not lost when the user switches to Log In and back.
+  get fullName(): string { return this.formState.fullName; }
+  set fullName(value: string) { this.formState.fullName = value; }
+
+  get suffix(): string { return this.formState.suffix; }
+  set suffix(value: string) { this.formState.suffix = value; }
+
+  get signupEmail(): string { return this.formState.signupEmail; }
+  set signupEmail(value: string) { this.formState.signupEmail = value; }
+
+  get dateOfBirth(): string { return this.formState.dateOfBirth; }
+  set dateOfBirth(value: string) { this.formState.dateOfBirth = value; }
+
+  get sex(): string { return this.formState.sex; }
+  set sex(value: string) { this.formState.sex = value; }
+
+  get course(): string { return this.formState.course; }
+  set course(value: string) { this.formState.course = value; }
+
+  get yearLevel(): string { return this.formState.yearLevel; }
+  set yearLevel(value: string) { this.formState.yearLevel = value; }
+
+  get scholarshipType(): string { return this.formState.scholarshipType; }
+  set scholarshipType(value: string) { this.formState.scholarshipType = value; }
+
+  get signupPassword(): string { return this.formState.signupPassword; }
+  set signupPassword(value: string) { this.formState.signupPassword = value; }
+
+  get confirmPassword(): string { return this.formState.confirmPassword; }
+  set confirmPassword(value: string) { this.formState.confirmPassword = value; }
+
   activeSignupDropdown: SignupDropdown | null = null;
-  signupPassword = '';
-  confirmPassword = '';
   confirmationPending = false;
   signupError = '';
   resendMessage = '';
@@ -116,38 +141,48 @@ export class SignupComponent {
       return;
     }
 
-    if (
-      !this.fullName.trim()
-      || !this.signupEmail.trim()
-      || !this.dateOfBirth
-      || !this.sex
-      || !this.course
-      || !this.yearLevel
-      || !this.scholarshipType
-      || !this.signupPassword
-      || !this.confirmPassword
-    ) {
-      this.signupError = 'Please complete all fields.';
+    // Check which required fields are empty
+    const emptyFields: string[] = [];
+    if (!this.fullName.trim()) emptyFields.push('Full Name');
+    if (!this.signupEmail.trim()) emptyFields.push('School E-mail');
+    if (!this.dateOfBirth) emptyFields.push('Date of Birth');
+    if (!this.yearLevel) emptyFields.push('Year Level');
+    if (!this.sex) emptyFields.push('Sex');
+    if (!this.course) emptyFields.push('Course');
+    if (!this.scholarshipType) emptyFields.push('Scholarship Type');
+    if (!this.signupPassword) emptyFields.push('Password');
+    if (!this.confirmPassword) emptyFields.push('Confirm Password');
+
+    if (emptyFields.length === 9) {
+      // All required fields are empty
+      toast.error('Please fill in all required fields.');
+      return;
+    }
+
+    if (emptyFields.length > 0) {
+      // Some required fields are empty - list them
+      toast.error('Please complete the following fields: ' + emptyFields.join(', ') + '.');
       return;
     }
 
     if (!isValidDateOfBirth(this.dateOfBirth)) {
-      this.signupError = 'Enter a valid date of birth.';
+      toast.error('Enter a valid date of birth.');
       return;
     }
 
     if (!isSchoolEmail(this.signupEmail)) {
-      this.signupError = SCHOOL_EMAIL_MESSAGE;
+      toast.error(SCHOOL_EMAIL_MESSAGE);
       return;
     }
 
     if (!this.passwordHasMinLength || !this.passwordHasNumber || !this.passwordHasUppercase) {
       this.passwordRequirementsError = true;
+      toast.error('Password must be at least 8 characters and include one number and one uppercase letter.');
       return;
     }
 
     if (this.signupPassword !== this.confirmPassword) {
-      this.signupError = 'Passwords do not match.';
+      toast.error('Passwords do not match.');
       return;
     }
 
@@ -164,9 +199,17 @@ export class SignupComponent {
         password: this.signupPassword
       });
 
+      toast.success('Registration successful! Please check your email to verify your account.');
       this.confirmationPending = true;
     } catch (error) {
-      this.signupError = describeHttpError(error);
+      const message = describeHttpError(error);
+
+      // Show duplicate-email error as a toast instead of inline text.
+      if (message === 'An account with this school email already exists.') {
+        toast.error('An account with this school email already exists.');
+      } else {
+        this.signupError = message;
+      }
     } finally {
       this.changeDetector.markForCheck();
     }
@@ -194,16 +237,16 @@ export class SignupComponent {
     this.resendMessage = '';
     this.passwordRequirementsError = false;
     this.activeSignupDropdown = null;
-    this.fullName = '';
-    this.suffix = '';
-    this.signupEmail = '';
-    this.dateOfBirth = '';
-    this.sex = '';
-    this.course = '';
-    this.yearLevel = '';
-    this.scholarshipType = '';
-    this.signupPassword = '';
-    this.confirmPassword = '';
+    this.formState.fullName = '';
+    this.formState.suffix = '';
+    this.formState.signupEmail = '';
+    this.formState.dateOfBirth = '';
+    this.formState.sex = '';
+    this.formState.course = '';
+    this.formState.yearLevel = '';
+    this.formState.scholarshipType = '';
+    this.formState.signupPassword = '';
+    this.formState.confirmPassword = '';
     this.changeDetector.markForCheck();
   }
 }

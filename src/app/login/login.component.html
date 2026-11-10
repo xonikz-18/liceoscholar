@@ -5,8 +5,8 @@
     <div class="form-box">
       <div class="tabs">
         <span class="slider" [class.slide-right]="switching"></span>
-        <button type="button" class="active">Log In</button>
-        <button type="button" (click)="goToSignup()">Sign Up</button>
+        <button type="button" [class.active]="!switching" [class.inactive]="switching">Log In</button>
+        <button type="button" [class.active]="switching" [class.inactive]="!switching" (click)="goToSignup()">Sign Up</button>
       </div>
 
       <form [class.fade-in]="animateForm" (ngSubmit)="login()">
@@ -52,18 +52,17 @@
 
         <button type="button" class="forgot" (click)="openForgotPassword()">Forgot Password?</button>
         <button type="submit" class="submit">Log In</button>
-        <p class="login-error" *ngIf="loginError" role="alert">{{ loginError }}</p>
         <div class="confirm-prompt" *ngIf="needsConfirmation" role="status">
           <p>Your email isn't verified yet. Check your inbox, or send the link again.</p>
           <button type="button" class="confirm-action" (click)="resendVerification()">Resend verification email</button>
         </div>
         <p class="resend-status" *ngIf="resendMessage">{{ resendMessage }}</p>
-      </form>
 
-      <div class="bottom-message">
-        Don't have an Account?
-        <button type="button" (click)="goToSignup()">Sign Up</button>
-      </div>
+        <p class="bottom-message">
+          Don't have an Account?
+          <button type="button" (click)="goToSignup()">Sign Up</button>
+        </p>
+      </form>
 
       <div class="reset-overlay" *ngIf="showResetModal">
         <div class="reset-modal" role="dialog" aria-modal="true" aria-labelledby="resetTitle">

@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import { toast } from 'ngx-sonner';
+
 import { describeHttpError, resolveFileUrl } from '../services/api.config';
 import { formatDateOfBirth } from '../services/date';
 import type { RequirementAnalysis, RequirementStatus, StudentStatus } from '../services/models';
@@ -271,7 +273,8 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
     } catch (error) {
       this.student = undefined;
       this.requirements = [];
-      alert(describeHttpError(error));
+      const msg = describeHttpError(error);
+      toast.error(msg);
     } finally {
       this.changeDetector.markForCheck();
     }
@@ -347,7 +350,7 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
     // "Pending" is always allowed; a final decision needs every document
     // reviewed first.
     if (status !== 'Pending' && !this.requirementsReviewed) {
-      alert(this.applicationStatusLockedReason);
+      toast.error(this.applicationStatusLockedReason);
       return;
     }
 
@@ -427,15 +430,19 @@ export class AdminstudentviewComponent implements OnInit, OnDestroy {
 
       // A final decision also emails the student, so confirm both here.
       if (applicationChanged && (savedStatus === 'Qualified' || savedStatus === 'Not Qualified')) {
-        this.showToast(
-          `${student.name} is now ${savedStatus}. A notification email was sent to ${student.email}.`,
-          savedStatus === 'Qualified' ? 'success' : 'danger'
-        );
+        const msg = `Applicant status updated successfully. ${student.name} is now ${savedStatus}. A notification email was sent to ${student.email}.`;
+        toast.success(msg);
+        this.showToast(msg, savedStatus === 'Qualified' ? 'success' : 'danger');
+      } else if (applicationChanged) {
+        toast.success('Applicant status updated successfully.');
+        this.showToast('Statuses saved.');
       } else {
+        toast.success('Statuses saved successfully.');
         this.showToast('Statuses saved.');
       }
     } catch (error) {
-      alert(describeHttpError(error));
+      const err = describeHttpError(error);
+      toast.error(err);
     } finally {
       this.savingChanges = false;
       this.changeDetector.markForCheck();

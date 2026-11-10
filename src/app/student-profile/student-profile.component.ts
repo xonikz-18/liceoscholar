@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { toast } from 'ngx-sonner';
+
 import { ProfilePhotoEditorComponent } from '../profile-photo-editor/profile-photo-editor.component';
 import { AccountService } from '../services/account.service';
 import { describeHttpError } from '../services/api.config';
@@ -97,6 +99,7 @@ export class StudentProfileComponent implements OnInit {
   /** Saves the new scholarship type and refreshes the signed-in account. */
   async saveScholarship(): Promise<void> {
     if (!this.selectedScholarship) {
+      toast.error('Choose a scholarship first.');
       this.scholarshipError = 'Choose a scholarship first.';
       return;
     }
@@ -118,8 +121,11 @@ export class StudentProfileComponent implements OnInit {
       this.auth.updateUser(updated);
       this.editingScholarship = false;
       this.scholarshipMessage = 'Scholarship type updated. Your uploaded files are being reviewed again.';
+      toast.success('Scholarship Type updated successfully.');
     } catch (error) {
-      this.scholarshipError = describeHttpError(error);
+      const errMessage = describeHttpError(error);
+      toast.error(errMessage);
+      this.scholarshipError = errMessage;
     } finally {
       this.savingScholarship = false;
       this.changeDetector.markForCheck();
